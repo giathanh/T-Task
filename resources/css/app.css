@@ -1,0 +1,261 @@
+@import 'tailwindcss';
+
+/*
+ * Material Design 3 baseline color roles (seed #6750A4).
+ * Light values live on :root; the dark scheme overrides the same
+ * custom properties so every `bg-primary`, `text-on-surface`, etc.
+ * utility below automatically follows the OS color scheme.
+ */
+:root {
+    --md-primary: #6750a4;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #eaddff;
+    --md-on-primary-container: #21005d;
+    --md-secondary: #625b71;
+    --md-on-secondary: #ffffff;
+    --md-secondary-container: #e8def8;
+    --md-on-secondary-container: #1d192b;
+    --md-tertiary: #7d5260;
+    --md-on-tertiary: #ffffff;
+    --md-tertiary-container: #ffd8e4;
+    --md-on-tertiary-container: #31111d;
+    --md-error: #b3261e;
+    --md-on-error: #ffffff;
+    --md-error-container: #f9dedc;
+    --md-on-error-container: #410e0b;
+    --md-background: #fef7ff;
+    --md-on-background: #1d1b20;
+    --md-surface: #fef7ff;
+    --md-on-surface: #1d1b20;
+    --md-surface-variant: #e7e0ec;
+    --md-on-surface-variant: #49454f;
+    --md-outline: #79747e;
+    --md-outline-variant: #cac4d0;
+    --md-surface-dim: #ded8e1;
+    --md-surface-bright: #fff7ff;
+    --md-surface-container-lowest: #ffffff;
+    --md-surface-container-low: #f7f2fa;
+    --md-surface-container: #f3edf7;
+    --md-surface-container-high: #ece6f0;
+    --md-surface-container-highest: #e6e0e9;
+    --md-inverse-surface: #322f35;
+    --md-inverse-on-surface: #f5eff7;
+    --md-inverse-primary: #d0bcff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --md-primary: #d0bcff;
+        --md-on-primary: #381e72;
+        --md-primary-container: #4f378b;
+        --md-on-primary-container: #eaddff;
+        --md-secondary: #ccc2dc;
+        --md-on-secondary: #332d41;
+        --md-secondary-container: #4a4458;
+        --md-on-secondary-container: #e8def8;
+        --md-tertiary: #efb8c8;
+        --md-on-tertiary: #492532;
+        --md-tertiary-container: #633b48;
+        --md-on-tertiary-container: #ffd8e4;
+        --md-error: #f2b8b5;
+        --md-on-error: #601410;
+        --md-error-container: #8c1d18;
+        --md-on-error-container: #f9dedc;
+        --md-background: #141218;
+        --md-on-background: #e6e0e9;
+        --md-surface: #141218;
+        --md-on-surface: #e6e0e9;
+        --md-surface-variant: #49454f;
+        --md-on-surface-variant: #cac4d0;
+        --md-outline: #948f99;
+        --md-outline-variant: #49454f;
+        --md-surface-dim: #141218;
+        --md-surface-bright: #3b383e;
+        --md-surface-container-lowest: #0f0d13;
+        --md-surface-container-low: #1d1b20;
+        --md-surface-container: #211f26;
+        --md-surface-container-high: #2b2930;
+        --md-surface-container-highest: #36343b;
+        --md-inverse-surface: #e6e0e9;
+        --md-inverse-on-surface: #322f35;
+        --md-inverse-primary: #6750a4;
+    }
+}
+
+@theme {
+    --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+
+    --color-primary: var(--md-primary);
+    --color-on-primary: var(--md-on-primary);
+    --color-primary-container: var(--md-primary-container);
+    --color-on-primary-container: var(--md-on-primary-container);
+    --color-secondary: var(--md-secondary);
+    --color-on-secondary: var(--md-on-secondary);
+    --color-secondary-container: var(--md-secondary-container);
+    --color-on-secondary-container: var(--md-on-secondary-container);
+    --color-tertiary: var(--md-tertiary);
+    --color-on-tertiary: var(--md-on-tertiary);
+    --color-tertiary-container: var(--md-tertiary-container);
+    --color-on-tertiary-container: var(--md-on-tertiary-container);
+    --color-error: var(--md-error);
+    --color-on-error: var(--md-on-error);
+    --color-error-container: var(--md-error-container);
+    --color-on-error-container: var(--md-on-error-container);
+    --color-background: var(--md-background);
+    --color-on-background: var(--md-on-background);
+    --color-surface: var(--md-surface);
+    --color-on-surface: var(--md-on-surface);
+    --color-surface-variant: var(--md-surface-variant);
+    --color-on-surface-variant: var(--md-on-surface-variant);
+    --color-outline: var(--md-outline);
+    --color-outline-variant: var(--md-outline-variant);
+    --color-surface-dim: var(--md-surface-dim);
+    --color-surface-bright: var(--md-surface-bright);
+    --color-surface-container-lowest: var(--md-surface-container-lowest);
+    --color-surface-container-low: var(--md-surface-container-low);
+    --color-surface-container: var(--md-surface-container);
+    --color-surface-container-high: var(--md-surface-container-high);
+    --color-surface-container-highest: var(--md-surface-container-highest);
+    --color-inverse-surface: var(--md-inverse-surface);
+    --color-inverse-on-surface: var(--md-inverse-on-surface);
+    --color-inverse-primary: var(--md-inverse-primary);
+
+    --shadow-elevation-1: 0px 1px 2px 0px rgb(0 0 0 / 0.3), 0px 1px 3px 1px rgb(0 0 0 / 0.15);
+    --shadow-elevation-2: 0px 1px 2px 0px rgb(0 0 0 / 0.3), 0px 2px 6px 2px rgb(0 0 0 / 0.15);
+    --shadow-elevation-3: 0px 4px 8px 3px rgb(0 0 0 / 0.15), 0px 1px 3px 0px rgb(0 0 0 / 0.3);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+}
+
+/*
+ * Rendered Markdown body for wiki pages. Tailwind's preflight strips default
+ * element styling, so re-apply a readable rhythm using MD3 color roles.
+ */
+.wiki-content {
+    color: var(--color-on-surface);
+    line-height: 1.7;
+    overflow-wrap: break-word;
+}
+
+.wiki-content > :first-child {
+    margin-top: 0;
+}
+
+.wiki-content > :last-child {
+    margin-bottom: 0;
+}
+
+.wiki-content h1,
+.wiki-content h2,
+.wiki-content h3,
+.wiki-content h4 {
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 1.75em 0 0.75em;
+}
+
+.wiki-content h1 {
+    font-size: 1.5rem;
+}
+
+.wiki-content h2 {
+    font-size: 1.3rem;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.wiki-content h3 {
+    font-size: 1.125rem;
+}
+
+.wiki-content p,
+.wiki-content ul,
+.wiki-content ol,
+.wiki-content blockquote,
+.wiki-content pre,
+.wiki-content table {
+    margin: 0.85em 0;
+}
+
+.wiki-content ul,
+.wiki-content ol {
+    padding-left: 1.5em;
+}
+
+.wiki-content ul {
+    list-style: disc;
+}
+
+.wiki-content ol {
+    list-style: decimal;
+}
+
+.wiki-content li {
+    margin: 0.3em 0;
+}
+
+.wiki-content a {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.wiki-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background-color: var(--color-surface-container-highest);
+    padding: 0.15em 0.4em;
+    border-radius: 0.375rem;
+}
+
+.wiki-content pre {
+    background-color: var(--color-surface-container-highest);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+}
+
+.wiki-content pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.85em;
+}
+
+.wiki-content blockquote {
+    border-left: 3px solid var(--color-primary);
+    padding-left: 1em;
+    color: var(--color-on-surface-variant);
+}
+
+.wiki-content hr {
+    border: 0;
+    border-top: 1px solid var(--color-outline-variant);
+    margin: 1.5em 0;
+}
+
+.wiki-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.wiki-content th,
+.wiki-content td {
+    border: 1px solid var(--color-outline-variant);
+    padding: 0.5em 0.75em;
+    text-align: left;
+}
+
+.wiki-content th {
+    background-color: var(--color-surface-container-high);
+    font-weight: 600;
+}
+
+.wiki-content img {
+    border-radius: 0.5rem;
+}
+
+.wiki-content input[type='checkbox'] {
+    margin-right: 0.5em;
+}
