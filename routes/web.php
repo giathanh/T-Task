@@ -3,6 +3,7 @@
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\WikiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/projects/{project}/issues/create', [IssueController::class, 'create'])->name('issues.create');
     Route::post('/projects/{project}/issues', [IssueController::class, 'store'])->name('issues.store');
+
+    Route::scopeBindings()->group(function () {
+        Route::get('/projects/{project}/wiki', [WikiController::class, 'index'])->name('projects.wiki.index');
+        Route::get('/projects/{project}/wiki/create', [WikiController::class, 'create'])->name('projects.wiki.create');
+        Route::post('/projects/{project}/wiki', [WikiController::class, 'store'])->name('projects.wiki.store');
+        Route::get('/projects/{project}/wiki/{wikiPage}', [WikiController::class, 'show'])->name('projects.wiki.show');
+        Route::get('/projects/{project}/wiki/{wikiPage}/edit', [WikiController::class, 'edit'])->name('projects.wiki.edit');
+        Route::put('/projects/{project}/wiki/{wikiPage}', [WikiController::class, 'update'])->name('projects.wiki.update');
+        Route::delete('/projects/{project}/wiki/{wikiPage}', [WikiController::class, 'destroy'])->name('projects.wiki.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';
