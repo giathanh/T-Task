@@ -49,6 +49,11 @@ class Project extends Model
         return $this->hasMany(Issue::class);
     }
 
+    public function wikiPages(): HasMany
+    {
+        return $this->hasMany(WikiPage::class);
+    }
+
     /**
      * Total and per-status issue counts, grouped by issue type.
      *

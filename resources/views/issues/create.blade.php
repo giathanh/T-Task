@@ -6,9 +6,13 @@
 
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-medium leading-tight text-on-surface">
-            Thêm Task — {{ $project['name'] }}
-        </h2>
+        <div class="flex flex-col gap-4">
+            <h2 class="text-xl font-medium leading-tight text-on-surface">
+                Thêm Task — {{ $project['name'] }}
+            </h2>
+
+            <x-project-nav :project="$project" active="issues" />
+        </div>
     </x-slot>
 
     <div class="py-12">
