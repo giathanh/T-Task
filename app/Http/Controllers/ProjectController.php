@@ -42,6 +42,7 @@ class ProjectController extends Controller
             'issueStats' => $project->issueStats(),
             'members' => $members->values()->all(),
             'currentUserRole' => $members->firstWhere('id', $request->user()->id)['role'] ?? null,
+            'newIssueUrl' => route('issues.create', $project),
         ]);
     }
 }

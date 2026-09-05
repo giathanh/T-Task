@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\IssuePriority;
 use App\Enums\IssueSeverity;
 use App\Enums\IssueStatus;
 use App\Enums\IssueType;
@@ -30,6 +31,14 @@ class IssueFactory extends Factory
             'severity' => null,
             'assignee_id' => null,
             'created_by' => null,
+            'priority' => IssuePriority::Normal,
+            'start_date' => null,
+            'due_date' => null,
+            'percent_done' => 0,
+            'estimated_hours' => null,
+            'category' => null,
+            'is_private' => false,
+            'parent_id' => null,
         ];
     }
 
