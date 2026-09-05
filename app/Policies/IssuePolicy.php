@@ -9,11 +9,11 @@ use App\Models\User;
 class IssuePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can list the given project's issues.
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user, Project $project): bool
     {
-        return false;
+        return $project->members()->whereKey($user->id)->exists();
     }
 
     /**
