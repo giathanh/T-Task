@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ProjectRole;
+use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
 use App\Policies\IssuePolicy;
@@ -57,5 +58,24 @@ class IssuePolicyTest extends TestCase
         $project = Project::factory()->create();
 
         $this->assertFalse((new IssuePolicy)->viewAny($user, $project));
+    }
+
+    #[DataProvider('projectRoles')]
+    public function test_allows_update_for_a_member_with_any_role(ProjectRole $role): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+        $project->members()->attach($user, ['role' => $role->value]);
+        $issue = Issue::factory()->for($project)->create();
+
+        $this->assertTrue((new IssuePolicy)->update($user, $issue));
+    }
+
+    public function test_forbids_update_for_a_user_who_is_not_a_project_member(): void
+    {
+        $user = User::factory()->create();
+        $issue = Issue::factory()->create();
+
+        $this->assertFalse((new IssuePolicy)->update($user, $issue));
     }
 }

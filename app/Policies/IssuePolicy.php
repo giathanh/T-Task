@@ -37,7 +37,7 @@ class IssuePolicy
      */
     public function update(User $user, Issue $issue): bool
     {
-        return false;
+        return $issue->project->members()->whereKey($user->id)->exists();
     }
 
     /**

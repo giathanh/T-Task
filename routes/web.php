@@ -26,6 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/issues', [IssueController::class, 'store'])->name('issues.store');
 
     Route::scopeBindings()->group(function () {
+        Route::get('/projects/{project}/issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
+        Route::get('/projects/{project}/issues/{issue}/edit', [IssueController::class, 'edit'])->name('issues.edit');
+        Route::put('/projects/{project}/issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
+
         Route::get('/projects/{project}/wiki', [WikiController::class, 'index'])->name('projects.wiki.index');
         Route::get('/projects/{project}/wiki/create', [WikiController::class, 'create'])->name('projects.wiki.create');
         Route::post('/projects/{project}/wiki', [WikiController::class, 'store'])->name('projects.wiki.store');
