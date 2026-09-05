@@ -12,6 +12,10 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.app');
+        return view('layouts.app', [
+            'navigationProjects' => auth()->user()->projects()
+                ->orderBy('name')
+                ->get(['projects.id', 'projects.name']),
+        ]);
     }
 }
