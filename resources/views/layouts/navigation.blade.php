@@ -12,8 +12,32 @@
                 <!-- Navigation Links -->
                 <div class="hidden sm:flex sm:items-center sm:gap-1">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
+                        {{ __('Trang chủ') }}
                     </x-nav-link>
+                    <x-dropdown align="left" width="w-72 max-w-[calc(100vw-2rem)]" contentClasses="py-2 bg-surface-container-lowest max-h-80 overflow-y-auto">
+                        <x-slot name="trigger">
+                            <button type="button" :aria-expanded="open.toString()" aria-controls="desktop-projects" @keydown.escape="open = false" @class([
+                                'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-primary',
+                                'bg-secondary-container text-on-secondary-container' => request()->route('project') !== null,
+                                'text-on-surface-variant hover:bg-on-surface/8' => request()->route('project') === null,
+                            ])>
+                                Dự án
+                                <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="m5 7 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            </button>
+                        </x-slot>
+                        <x-slot name="content">
+                            <div id="desktop-projects" @keydown.escape.stop="open = false; $root.querySelector('button').focus()">
+                                <p class="px-4 py-2 text-xs font-medium text-on-surface-variant">Dự án của bạn</p>
+                                @forelse ($navigationProjects as $navigationProject)
+                                    <x-dropdown-link :href="route('projects.show', $navigationProject)" :aria-current="request()->route('project')?->id === $navigationProject->id ? 'page' : null" @class(['break-words', 'bg-secondary-container font-medium' => request()->route('project')?->id === $navigationProject->id])>
+                                        {{ $navigationProject->name }}
+                                    </x-dropdown-link>
+                                @empty
+                                    <p class="px-4 py-3 text-sm text-on-surface-variant">Bạn chưa tham gia dự án nào.</p>
+                                @endforelse
+                            </div>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
             </div>
 
@@ -67,11 +91,23 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-outline-variant sm:hidden">
         <div class="space-y-1 px-3 pb-3 pt-3">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Trang chủ') }}
             </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
+        <div class="border-t border-outline-variant px-3 py-3">
+            <p class="px-4 py-2 text-xs font-medium text-on-surface-variant">Dự án của bạn</p>
+            <div class="max-h-64 space-y-1 overflow-y-auto">
+                @forelse ($navigationProjects as $navigationProject)
+                    <x-responsive-nav-link :href="route('projects.show', $navigationProject)" :active="request()->route('project')?->id === $navigationProject->id" :aria-current="request()->route('project')?->id === $navigationProject->id ? 'page' : null" class="break-words">
+                        {{ $navigationProject->name }}
+                    </x-responsive-nav-link>
+                @empty
+                    <p class="px-4 py-2 text-sm text-on-surface-variant">Bạn chưa tham gia dự án nào.</p>
+                @endforelse
+            </div>
+        </div>
         <div class="border-t border-outline-variant pb-3 pt-4">
             <div class="flex items-center gap-3 px-4">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-base font-medium text-on-primary-container">
