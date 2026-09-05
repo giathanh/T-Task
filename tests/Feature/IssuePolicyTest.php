@@ -41,4 +41,21 @@ class IssuePolicyTest extends TestCase
 
         $this->assertFalse((new IssuePolicy)->create($user, $project));
     }
+
+    public function test_allows_view_any_for_a_project_member(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+        $project->members()->attach($user, ['role' => ProjectRole::Member->value]);
+
+        $this->assertTrue((new IssuePolicy)->viewAny($user, $project));
+    }
+
+    public function test_forbids_view_any_for_a_user_who_is_not_a_project_member(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $this->assertFalse((new IssuePolicy)->viewAny($user, $project));
+    }
 }

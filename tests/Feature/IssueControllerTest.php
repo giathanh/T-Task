@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\IssueStatus;
 use App\Enums\ProjectRole;
 use App\Models\Issue;
 use App\Models\Project;
@@ -21,6 +22,75 @@ class IssueControllerTest extends TestCase
         $project->members()->attach($user, ['role' => $role->value]);
 
         return $user;
+    }
+
+    public function test_guest_is_redirected_to_login_from_the_issue_index(): void
+    {
+        $project = Project::factory()->create();
+
+        $this->get(route('issues.index', $project))
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_non_member_is_forbidden_from_listing_issues(): void
+    {
+        $project = Project::factory()->create();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('issues.index', $project))
+            ->assertForbidden();
+    }
+
+    public function test_member_sees_only_this_projects_issues(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->create(['title' => 'Broken login form']);
+        Issue::factory()->create(['title' => 'Issue from another project']);
+
+        $this->actingAs($member)
+            ->get(route('issues.index', $project))
+            ->assertOk()
+            ->assertSee('Broken login form')
+            ->assertDontSee('Issue from another project');
+    }
+
+    public function test_status_filter_limits_the_listed_issues(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->status(IssueStatus::Open)->create(['title' => 'Still open task']);
+        Issue::factory()->for($project)->status(IssueStatus::Done)->create(['title' => 'Finished task']);
+
+        $this->actingAs($member)
+            ->get(route('issues.index', [$project, 'status' => 'open']))
+            ->assertOk()
+            ->assertSee('Still open task')
+            ->assertDontSee('Finished task');
+    }
+
+    public function test_title_search_filters_the_listed_issues(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->create(['title' => 'Checkout crashes on Safari']);
+        Issue::factory()->for($project)->create(['title' => 'Update onboarding copy']);
+
+        $this->actingAs($member)
+            ->get(route('issues.index', [$project, 'q' => 'checkout']))
+            ->assertOk()
+            ->assertSee('Checkout crashes on Safari')
+            ->assertDontSee('Update onboarding copy');
+    }
+
+    public function test_invalid_status_filter_fails_validation(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+
+        $this->actingAs($member)
+            ->get(route('issues.index', [$project, 'status' => 'not-a-status']))
+            ->assertSessionHasErrors('status');
     }
 
     public function test_guest_is_redirected_to_login_when_viewing_create_form(): void
