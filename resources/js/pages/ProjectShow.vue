@@ -6,6 +6,7 @@ const props = defineProps({
     issueStats: { type: Object, required: true },
     members: { type: Array, required: true },
     currentUserRole: { type: String, default: null },
+    newIssueUrl: { type: String, required: true },
 });
 
 const projectStatusLabels = {
@@ -111,6 +112,17 @@ const issueCards = computed(() => [
                 </div>
             </dl>
         </section>
+
+        <!-- Issues header -->
+        <div class="flex items-center justify-between">
+            <h3 class="font-medium text-on-surface">Issues</h3>
+            <a
+                :href="newIssueUrl"
+                class="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
+            >
+                + New Task
+            </a>
+        </div>
 
         <!-- Stat cards -->
         <section class="grid grid-cols-1 gap-6 md:grid-cols-3">

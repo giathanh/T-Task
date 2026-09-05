@@ -15,6 +15,7 @@
                     'issueStats' => $issueStats,
                     'members' => $members,
                     'currentUserRole' => $currentUserRole,
+                    'newIssueUrl' => $newIssueUrl,
                 ]) }};
             </script>
         </div>
