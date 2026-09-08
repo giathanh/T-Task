@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminProjectController;
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\ProfileController;
@@ -16,6 +18,11 @@ Route::get('/', function (): RedirectResponse {
 Route::get('/dashboard', HomeController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('can:access-admin')->group(function () {
+        Route::resource('projects', AdminProjectController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    });
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
