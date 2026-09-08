@@ -11,13 +11,13 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="flex min-h-screen flex-col items-center justify-center gap-8 bg-surface-container-low px-4 py-10 sm:px-6 lg:px-8">
+        <div class="flex min-h-screen flex-col items-center justify-center gap-8 px-4 py-10 sm:px-6 lg:px-8">
             <a href="/" class="flex items-center gap-3">
                 <x-application-logo class="h-10 w-10 fill-current text-primary" />
                 <span class="text-xl font-medium text-on-surface">{{ config('app.name', 'T-Task') }}</span>
             </a>
 
-            <div class="w-full rounded-3xl bg-surface-container-lowest p-8 shadow-elevation-1 sm:p-10">
+            <div class="w-full max-w-md rounded-3xl glass-strong p-8 sm:p-10">
                 {{ $slot }}
             </div>
         </div>

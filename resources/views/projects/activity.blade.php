@@ -23,13 +23,13 @@
                     <h1 class="text-3xl font-semibold tracking-tight text-on-surface">Activity</h1>
                     <p class="max-w-xl text-sm leading-6 text-on-surface-variant">Theo dõi các Task, Bug và trang Wiki được tạo trong dự án.</p>
                 </div>
-                <a href="{{ route('issues.create', $project) }}" class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-on-primary transition hover:shadow-elevation-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                <a href="{{ route('issues.create', $project) }}" class="inline-flex items-center gap-2 glass-button glass-button--primary rounded-full px-5 py-3 text-sm font-medium text-on-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
                     <span aria-hidden="true">＋</span> Tạo issue
                 </a>
             </div>
 
             <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-                <section aria-label="Dòng thời gian hoạt động" class="min-w-0 overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
+                <section aria-label="Dòng thời gian hoạt động" class="min-w-0 overflow-hidden rounded-3xl glass">
                     <div class="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant p-5 sm:p-6">
                         <nav aria-label="Lọc loại hoạt động" class="flex flex-wrap gap-2">
                             @foreach (['' => 'Tất cả', ...$types] as $key => $label)
@@ -76,7 +76,7 @@
                                 <span class="flex size-14 items-center justify-center rounded-2xl bg-secondary-container text-2xl text-on-secondary-container" aria-hidden="true">◷</span>
                                 <h3 class="text-lg font-medium text-on-surface">Chưa có hoạt động{{ $type ? ' '.$types[$type] : '' }}</h3>
                                 <p class="max-w-sm text-sm leading-6 text-on-surface-variant">Các nội dung mới sẽ xuất hiện tại đây khi thành viên tạo Task, Bug hoặc trang Wiki.</p>
-                                <a href="{{ route($type === 'wiki' ? 'projects.wiki.create' : 'issues.create', $project) }}" class="mt-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-on-primary">{{ $type === 'wiki' ? 'Tạo trang Wiki' : 'Tạo issue đầu tiên' }}</a>
+                                <a href="{{ route($type === 'wiki' ? 'projects.wiki.create' : 'issues.create', $project) }}" class="mt-2 glass-button glass-button--primary rounded-full px-5 py-2.5 text-sm font-medium text-on-primary">{{ $type === 'wiki' ? 'Tạo trang Wiki' : 'Tạo issue đầu tiên' }}</a>
                             </div>
                         @endforelse
                     </div>
@@ -90,7 +90,7 @@
                 </section>
 
                 <aside class="flex flex-col gap-5">
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <h3 class="font-medium text-on-surface">Trong dự án</h3>
                         <p class="mt-4 text-4xl font-semibold tracking-tight text-on-surface">{{ $counts->sum() }}</p>
                         <p class="mt-1 text-sm text-on-surface-variant">nội dung đã được tạo</p>

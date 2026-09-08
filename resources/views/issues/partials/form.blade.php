@@ -38,7 +38,7 @@
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {{-- Main column --}}
         <div class="flex flex-col gap-6 lg:col-span-2">
-            <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <section class="rounded-3xl glass p-6">
                 <x-md3-text-field name="title" label="Tiêu đề" :value="old('title', $issue?->title)" required autofocus />
 
                 <div class="mt-4">
@@ -46,7 +46,7 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <section class="rounded-3xl glass p-6">
                 <h3 class="mb-3 font-medium text-on-surface">Tệp đính kèm</h3>
 
                 @if ($issue && $issue->attachments->isNotEmpty())
@@ -69,7 +69,7 @@
                 </p>
             </section>
 
-            <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <section class="rounded-3xl glass p-6">
                 <h3 class="mb-3 font-medium text-on-surface">Người theo dõi</h3>
                 @if ($members->isEmpty())
                     <p class="text-sm text-on-surface-variant">Dự án chưa có thành viên nào khác.</p>
@@ -94,7 +94,7 @@
 
         {{-- Sidebar column --}}
         <div class="flex flex-col gap-4">
-            <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <section class="rounded-3xl glass p-6">
                 <div class="grid grid-cols-2 gap-4">
                     <x-md3-select
                         name="type"
@@ -163,7 +163,7 @@
                 </div>
             </section>
 
-            <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <section class="rounded-3xl glass p-6">
                 <x-md3-select
                     name="assignee_id"
                     label="Người thực hiện"

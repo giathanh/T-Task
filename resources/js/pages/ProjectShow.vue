@@ -87,7 +87,7 @@ const issueCards = computed(() => [
 <template>
     <div class="flex flex-col gap-6">
         <!-- Project header -->
-        <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+        <section class="rounded-3xl glass p-6">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex flex-col gap-1">
                     <p class="text-on-surface-variant">
@@ -121,7 +121,7 @@ const issueCards = computed(() => [
             <h3 class="font-medium text-on-surface">Issues</h3>
             <a
                 :href="newIssueUrl"
-                class="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
+                class="glass-button glass-button--primary rounded-full px-4 py-1.5 text-sm font-medium text-on-primary"
             >
                 + New Task
             </a>
@@ -132,7 +132,7 @@ const issueCards = computed(() => [
             <div
                 v-for="card in issueCards"
                 :key="card.key"
-                class="flex flex-col gap-3 rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1"
+                class="flex flex-col gap-3 rounded-3xl glass-card p-6"
             >
                 <p class="flex items-center gap-2 font-medium text-on-surface">
                     <span aria-hidden="true">{{ card.icon }}</span>
@@ -146,7 +146,7 @@ const issueCards = computed(() => [
                 </ul>
             </div>
 
-            <div class="flex flex-col gap-3 rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+            <div class="flex flex-col gap-3 rounded-3xl glass p-6">
                 <p class="flex items-center gap-2 font-medium text-on-surface">
                     <span aria-hidden="true">👥</span>
                     Members
@@ -157,13 +157,13 @@ const issueCards = computed(() => [
         </section>
 
         <!-- Members list -->
-        <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+        <section class="rounded-3xl glass p-6">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="font-medium text-on-surface">Thành viên ({{ members.length }})</h3>
                 <button
                     v-if="canManageMembers"
                     type="button"
-                    class="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
+                    class="glass-button glass-button--primary rounded-full px-4 py-1.5 text-sm font-medium text-on-primary"
                 >
                     + Invite
                 </button>

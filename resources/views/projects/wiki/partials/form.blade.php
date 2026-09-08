@@ -11,7 +11,7 @@
         @method($method)
     @endif
 
-    <section class="flex flex-col gap-4 rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+    <section class="flex flex-col gap-4 rounded-3xl glass p-6">
         <x-md3-text-field
             name="title"
             label="Tiêu đề"

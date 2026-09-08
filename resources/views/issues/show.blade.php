@@ -69,7 +69,7 @@
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {{-- Main column --}}
                 <div class="flex flex-col gap-6 lg:col-span-2">
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="text-sm text-on-surface-variant">#{{ $issue->id }}</span>
                             <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
@@ -103,7 +103,7 @@
                         @endif
                     </section>
 
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <h3 class="mb-3 font-medium text-on-surface">Mô tả</h3>
                         @if (filled($issue->description))
                             <p class="whitespace-pre-wrap text-sm text-on-surface">{{ $issue->description }}</p>
@@ -112,7 +112,7 @@
                         @endif
                     </section>
 
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <h3 class="mb-3 font-medium text-on-surface">
                             Tệp đính kèm
                             <span class="text-sm font-normal text-on-surface-variant">({{ $issue->attachments->count() }})</span>
@@ -136,7 +136,7 @@
                         @endif
                     </section>
 
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <h3 class="mb-3 font-medium text-on-surface">
                             Task con
                             <span class="text-sm font-normal text-on-surface-variant">({{ $issue->children->count() }})</span>
@@ -167,7 +167,7 @@
 
                 {{-- Sidebar column --}}
                 <div class="flex flex-col gap-4">
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <dl class="flex flex-col gap-4 text-sm">
                             <div class="flex items-center justify-between gap-3">
                                 <dt class="text-on-surface-variant">Người thực hiện</dt>
@@ -212,7 +212,7 @@
                         </div>
                     </section>
 
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
+                    <section class="rounded-3xl glass p-6">
                         <h3 class="mb-3 font-medium text-on-surface">
                             Người theo dõi
                             <span class="text-sm font-normal text-on-surface-variant">({{ $issue->watchers->count() }})</span>

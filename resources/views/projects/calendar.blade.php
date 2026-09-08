@@ -14,10 +14,10 @@
                     <h1 class="text-3xl font-semibold tracking-tight text-on-surface">Calendar</h1>
                     <p class="text-sm leading-6 text-on-surface-variant">Theo dõi ngày bắt đầu và hạn hoàn thành của Task, Bug trong dự án.</p>
                 </div>
-                <a href="{{ route('issues.create', $project) }}" class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-on-primary transition hover:shadow-elevation-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"><span aria-hidden="true">＋</span> Tạo issue</a>
+                <a href="{{ route('issues.create', $project) }}" class="inline-flex items-center gap-2 glass-button glass-button--primary rounded-full px-5 py-3 text-sm font-medium text-on-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"><span aria-hidden="true">＋</span> Tạo issue</a>
             </div>
 
-            <section aria-label="Lịch công việc" class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
+            <section aria-label="Lịch công việc" class="overflow-hidden rounded-3xl glass">
                 <div class="flex flex-wrap items-center justify-between gap-4 border-b border-outline-variant p-5 sm:p-6">
                     <div class="flex flex-wrap items-center gap-4">
                         <h2 class="text-xl font-semibold text-on-surface">Tháng {{ $month->format('m / Y') }}</h2>

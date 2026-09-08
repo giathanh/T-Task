@@ -43,7 +43,7 @@
 
     <div class="py-8 sm:py-12">
         <div class="w-full px-4 sm:px-6 lg:px-8">
-            <section class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
+            <section class="overflow-hidden rounded-3xl glass">
                 <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
                     <h3 class="font-medium text-on-surface">
                         {{ $issues->total() }} issue{{ $issues->total() === 1 ? '' : 's' }}
@@ -54,7 +54,7 @@
 
                     <a
                         href="{{ $newIssueUrl }}"
-                        class="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-on-primary shadow-elevation-1 transition hover:shadow-elevation-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                        class="inline-flex h-10 items-center gap-2 glass-button glass-button--primary rounded-full px-5 text-sm font-medium text-on-primary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                         <span aria-hidden="true">＋</span> Issue mới
                     </a>
@@ -115,7 +115,7 @@
                         @unless ($hasFilters)
                             <a
                                 href="{{ $newIssueUrl }}"
-                                class="mt-4 inline-flex rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
+                                class="mt-4 inline-flex glass-button glass-button--primary rounded-full px-4 py-1.5 text-sm font-medium text-on-primary"
                             >
                                 Tạo issue đầu tiên
                             </a>

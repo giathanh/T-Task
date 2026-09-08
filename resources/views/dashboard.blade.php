@@ -18,7 +18,7 @@
 
     <div class="flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <section aria-label="Tổng quan công việc" class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
-            @foreach ([['total', 'Được giao cho bạn', 'bg-primary-container text-on-primary-container'], ['in_progress', 'Đang thực hiện', 'bg-surface-container-lowest text-on-surface'], ['overdue', 'Đã quá hạn', 'bg-error-container text-on-error-container'], ['done', 'Đã hoàn thành', 'bg-surface-container-lowest text-on-surface']] as [$key, $label, $colors])
+            @foreach ([['total', 'Được giao cho bạn', 'bg-primary-container text-on-primary-container'], ['in_progress', 'Đang thực hiện', 'glass text-on-surface'], ['overdue', 'Đã quá hạn', 'bg-error-container text-on-error-container'], ['done', 'Đã hoàn thành', 'glass text-on-surface']] as [$key, $label, $colors])
                 <div class="rounded-3xl p-5 sm:p-6 {{ $colors }}">
                     <p class="text-sm">{{ $label }}</p>
                     <p class="mt-3 text-4xl font-medium tabular-nums">{{ $stats[$key] }}</p>
@@ -35,7 +35,7 @@
                 <span class="rounded-full bg-secondary-container px-3 py-1 text-sm font-medium text-on-secondary-container">{{ $issues->total() }} công việc{{ $hasFilters ? ' khớp bộ lọc' : '' }}</span>
             </div>
 
-            <form method="GET" action="{{ route('dashboard') }}" class="grid items-end gap-3 rounded-3xl bg-surface-container-lowest p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+            <form method="GET" action="{{ route('dashboard') }}" class="grid items-end gap-3 rounded-3xl glass p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <x-md3-text-field name="q" label="Tìm theo tiêu đề" :value="$filters['q'] ?? null" maxlength="255" />
                 <x-md3-select name="project" label="Dự án" placeholder="Tất cả dự án" :value="$filters['project'] ?? null" :options="$projects->map(fn ($project) => ['value' => $project->id, 'label' => $project->name])" />
                 <x-md3-select name="status" label="Trạng thái" placeholder="Tất cả trạng thái" :value="$filters['status'] ?? null" :options="collect($statusLabels)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()" />
@@ -47,7 +47,7 @@
                 </div>
             </form>
 
-            <div class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
+            <div class="overflow-hidden rounded-3xl glass">
                 @forelse ($issues as $issue)
                     @php
                         $overdue = $issue->status !== \App\Enums\IssueStatus::Done && $issue->due_date?->lt($today);

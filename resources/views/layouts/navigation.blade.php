@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="border-b border-outline-variant bg-surface-container-lowest">
+<nav x-data="{ open: false }" class="glass-bar sticky top-0 z-50">
     <!-- Primary Navigation Menu -->
     <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 justify-between">
@@ -14,7 +14,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Trang chủ') }}
                     </x-nav-link>
-                    <x-dropdown align="left" width="w-72 max-w-[calc(100vw-2rem)]" contentClasses="py-2 bg-surface-container-lowest max-h-80 overflow-y-auto">
+                    <x-dropdown align="left" width="w-72 max-w-[calc(100vw-2rem)]" contentClasses="py-2 glass-strong max-h-80 overflow-y-auto">
                         <x-slot name="trigger">
                             <button type="button" :aria-expanded="open.toString()" aria-controls="desktop-projects" @keydown.escape="open = false" @class([
                                 'flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-primary',

@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            <article class="flex flex-col gap-4 rounded-3xl bg-surface-container-lowest p-8 shadow-elevation-1">
+            <article class="flex flex-col gap-4 rounded-3xl glass p-8">
                 <header class="flex flex-col gap-1 border-b border-outline-variant pb-4">
                     <h1 class="text-2xl font-semibold text-on-surface">{{ $page->title }}</h1>
                     <p class="text-xs text-on-surface-variant">

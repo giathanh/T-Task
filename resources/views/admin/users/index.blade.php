@@ -7,9 +7,9 @@
                 <a href="{{ route('admin.users.index') }}" class="text-sm text-primary hover:underline">Xóa tìm kiếm</a>
             @endif
         </form>
-        <a href="{{ route('admin.users.create') }}" class="inline-flex shrink-0 items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-on-primary hover:bg-primary/90">Thêm người dùng</a>
+        <a href="{{ route('admin.users.create') }}" class="inline-flex shrink-0 items-center justify-center glass-button glass-button--primary rounded-full px-6 py-3 text-sm font-medium text-on-primary">Thêm người dùng</a>
     </div>
-    <div class="overflow-x-auto rounded-2xl border border-outline-variant bg-surface-container-lowest">
+    <div class="overflow-x-auto rounded-2xl glass">
         <table class="w-full text-left text-sm text-on-surface">
             <caption class="sr-only">Danh sách người dùng</caption>
             <thead class="bg-surface-container text-on-surface-variant"><tr><th scope="col" class="px-5 py-4">Họ tên</th><th scope="col" class="px-5 py-4">Email</th><th scope="col" class="px-5 py-4">Quyền hệ thống</th><th scope="col" class="px-5 py-4">Dự án</th><th scope="col" class="px-5 py-4">Thao tác</th></tr></thead>

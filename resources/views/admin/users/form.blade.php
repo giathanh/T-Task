@@ -1,5 +1,5 @@
 <x-admin-layout :title="$user->exists ? 'Chỉnh sửa người dùng' : 'Thêm người dùng'">
-    <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="flex w-full max-w-3xl flex-col gap-6 rounded-2xl border border-outline-variant bg-surface-container-lowest p-6">
+    <form method="POST" action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" class="flex w-full max-w-3xl flex-col gap-6 rounded-2xl glass p-6">
         @csrf
         @if ($user->exists)
             @method('PUT')

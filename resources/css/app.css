@@ -47,6 +47,21 @@
     --md-priority-high-container-hover: #ffdd9f;
     --md-priority-urgent-container: #ffd6d1;
     --md-priority-urgent-container-hover: #ffc6bf;
+
+    /*
+     * Liquid glass surface system. Translucent panels blur whatever sits
+     * behind them (the ambient body gradient, page content while scrolling),
+     * lit by a bright top edge. See the `.glass-*` classes below.
+     */
+    --glass-blur: blur(20px) saturate(180%);
+    --glass-blur-strong: blur(30px) saturate(190%);
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-bg-strong: rgba(255, 255, 255, 0.72);
+    --glass-bg-bar: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.55);
+    --glass-shadow: 0 8px 32px -8px rgba(31, 24, 51, 0.18);
+    --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
+    --glass-scrim: rgba(31, 24, 51, 0.32);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -90,6 +105,14 @@
         --md-priority-high-container-hover: #4d3d1c;
         --md-priority-urgent-container: #522623;
         --md-priority-urgent-container-hover: #64302b;
+
+        --glass-bg: rgba(28, 26, 35, 0.55);
+        --glass-bg-strong: rgba(33, 31, 40, 0.75);
+        --glass-bg-bar: rgba(20, 18, 24, 0.62);
+        --glass-border: rgba(255, 255, 255, 0.12);
+        --glass-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+        --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        --glass-scrim: rgba(0, 0, 0, 0.5);
     }
 }
 
@@ -144,6 +167,182 @@
 body {
     background-color: var(--color-background);
     color: var(--color-on-background);
+    /*
+     * Ambient colour field the glass panels refract. Fixed so it stays put
+     * while content scrolls underneath the translucent chrome.
+     */
+    background-image:
+        radial-gradient(60% 55% at 12% 8%, color-mix(in srgb, var(--md-primary) 45%, transparent) 0, transparent 100%),
+        radial-gradient(55% 50% at 92% 4%, color-mix(in srgb, var(--md-tertiary) 42%, transparent) 0, transparent 100%),
+        radial-gradient(65% 60% at 88% 96%, color-mix(in srgb, var(--md-secondary) 42%, transparent) 0, transparent 100%),
+        radial-gradient(60% 60% at 8% 100%, color-mix(in srgb, var(--md-inverse-primary) 40%, transparent) 0, transparent 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+}
+
+/*
+ * Liquid glass surfaces.
+ * `.glass`      — default translucent panel (cards, popovers).
+ * `.glass-strong` — higher opacity for dense content / small text.
+ * `.glass-bar`  — edge-to-edge chrome (top nav, page header); border on the
+ *                 bottom edge only.
+ * `.glass-card` — `.glass` plus the rounding/shadow most panels want.
+ */
+.glass,
+.glass-strong,
+.glass-card,
+.glass-bar {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    background-color: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+.glass-strong {
+    background-color: var(--glass-bg-strong);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    backdrop-filter: var(--glass-blur-strong);
+}
+
+.glass-card {
+    border-radius: 1.5rem;
+}
+
+.glass-bar {
+    background-color: var(--glass-bg-bar);
+    border: 0;
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 24px -12px rgba(31, 24, 51, 0.25), var(--glass-highlight);
+}
+
+.glass-scrim {
+    background-color: var(--glass-scrim);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+/*
+ * Liquid glass button. A tinted translucent fill with a lit top edge, a
+ * curved inner shadow and a specular streak that sweeps across on hover.
+ * Set the accent with a modifier: `.glass-button--primary` / `--error`.
+ * Works on <button> and <a>; keep the layout utilities (h-10, rounded-full,
+ * px-*, text-*) on the element.
+ */
+.glass-button {
+    --glass-btn-tint: var(--color-primary);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%);
+    background-color: color-mix(in srgb, var(--glass-btn-tint) 78%, transparent);
+    background-image: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.08) 40%,
+        rgba(0, 0, 0, 0.14) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--glass-btn-tint) 35%, rgba(255, 255, 255, 0.65));
+    box-shadow:
+        0 6px 18px -4px color-mix(in srgb, var(--glass-btn-tint) 50%, transparent),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+        inset 0 -3px 8px -3px rgba(0, 0, 0, 0.25);
+    transition:
+        box-shadow 150ms ease,
+        transform 120ms ease,
+        filter 150ms ease;
+}
+
+.glass-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        115deg,
+        transparent 42%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 58%
+    );
+    transform: translateX(-130%);
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.glass-button:hover {
+    filter: brightness(1.06) saturate(1.05);
+    box-shadow:
+        0 10px 26px -5px color-mix(in srgb, var(--glass-btn-tint) 62%, transparent),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+        inset 0 -3px 8px -3px rgba(0, 0, 0, 0.28);
+}
+
+.glass-button:hover::before {
+    transform: translateX(130%);
+}
+
+.glass-button:active {
+    transform: translateY(1px) scale(0.99);
+    filter: brightness(0.97);
+}
+
+.glass-button--primary {
+    --glass-btn-tint: var(--color-primary);
+}
+
+.glass-button--error {
+    --glass-btn-tint: var(--color-error);
+}
+
+.glass-button--secondary {
+    --glass-btn-tint: var(--color-secondary-container);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .glass-button,
+    .glass-button::before {
+        transition: none;
+    }
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass-button {
+        background-color: var(--glass-btn-tint);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .glass-button {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background-color: var(--glass-btn-tint);
+    }
+}
+
+/* Opaque fallback where the browser can't composite a backdrop blur. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-strong,
+    .glass-card,
+    .glass-bar {
+        background-color: var(--color-surface-container-lowest);
+    }
+
+    .glass-scrim {
+        background-color: color-mix(in srgb, var(--glass-scrim) 100%, black 20%);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-strong,
+    .glass-card,
+    .glass-bar {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background-color: var(--color-surface-container-lowest);
+    }
 }
 
 /*

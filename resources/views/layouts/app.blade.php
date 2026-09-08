@@ -11,12 +11,12 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-surface-container-low">
+        <div class="min-h-screen">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-surface-container-lowest">
+                <header class="glass-bar">
                     <div class="w-full px-4 py-6 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
