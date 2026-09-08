@@ -1,23 +1,34 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AdminProjectController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\WikiController;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (): RedirectResponse {
+    return to_route(auth()->check() ? 'dashboard' : 'login');
 });
 
 Route::get('/dashboard', HomeController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('can:access-admin')->group(function () {
+        Route::resource('projects', AdminProjectController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    });
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/projects/{project}/calendar', CalendarController::class)->name('projects.calendar');
 
     Route::get('/projects/{project}/activity', ActivityController::class)->name('projects.activity');
 

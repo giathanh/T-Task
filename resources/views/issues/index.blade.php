@@ -12,15 +12,22 @@
         'in_progress' => 'bg-primary-container text-on-primary-container',
         'done' => 'bg-tertiary-container text-on-tertiary-container',
     ];
-    $priorityBadges = [
-        'low' => 'text-on-surface-variant',
-        'normal' => 'text-on-surface-variant',
-        'high' => 'text-tertiary',
-        'urgent' => 'text-error font-semibold',
-    ];
-
     $badgeBase = 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium';
+
+    $priorityBadges = [
+        'low' => 'text-xs text-on-surface-variant',
+        'normal' => 'text-xs text-on-surface-variant',
+        'high' => 'text-xs font-medium text-tertiary',
+        'urgent' => $badgeBase.' bg-error text-on-error',
+    ];
+    $priorityRows = [
+        'low' => 'hover:bg-on-surface/8',
+        'normal' => 'hover:bg-on-surface/8',
+        'high' => 'bg-priority-high-container hover:bg-priority-high-container-hover',
+        'urgent' => 'bg-priority-urgent-container hover:bg-priority-urgent-container-hover',
+    ];
     $hasFilters = collect($filters)->filter(fn ($value) => $value !== null && $value !== '')->isNotEmpty();
+    $showFilters = $hasFilters || $issues->total() > 0;
 @endphp
 
 <x-app-layout>
@@ -34,87 +41,121 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto flex max-w-6xl flex-col gap-6 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <h3 class="font-medium text-on-surface">
-                    {{ $issues->total() }} issue{{ $issues->total() === 1 ? '' : 's' }}
-                    @if ($hasFilters)
-                        <span class="text-sm font-normal text-on-surface-variant">khớp bộ lọc</span>
-                    @endif
-                </h3>
+    <div class="py-8 sm:py-12">
+        <div class="w-full px-4 sm:px-6 lg:px-8">
+            <section class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
+                <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
+                    <h3 class="font-medium text-on-surface">
+                        {{ $issues->total() }} issue{{ $issues->total() === 1 ? '' : 's' }}
+                        @if ($hasFilters)
+                            <span class="text-sm font-normal text-on-surface-variant">khớp bộ lọc</span>
+                        @endif
+                    </h3>
 
-                <a
-                    href="{{ $newIssueUrl }}"
-                    class="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
-                >
-                    + Issue mới
-                </a>
-            </div>
+                    <a
+                        href="{{ $newIssueUrl }}"
+                        class="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-sm font-medium text-on-primary shadow-elevation-1 transition hover:shadow-elevation-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                        <span aria-hidden="true">＋</span> Issue mới
+                    </a>
+                </div>
 
-            <form
-                method="GET"
-                action="{{ route('issues.index', $project['id']) }}"
-                class="flex flex-wrap items-end gap-3 rounded-3xl bg-surface-container-lowest p-4 shadow-elevation-1"
-            >
-                <div class="min-w-48 flex-1">
-                    <x-md3-text-field name="q" label="Tìm theo tiêu đề" :value="$filters['q'] ?? null" />
-                </div>
-                <div class="w-40">
-                    <x-md3-select
-                        name="type"
-                        label="Loại"
-                        placeholder="Tất cả"
-                        :value="$filters['type'] ?? null"
-                        :options="collect($typeLabels)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()"
-                    />
-                </div>
-                <div class="w-44">
-                    <x-md3-select
-                        name="status"
-                        label="Trạng thái"
-                        placeholder="Tất cả"
-                        :value="$filters['status'] ?? null"
-                        :options="collect($statusLabels)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()"
-                    />
-                </div>
-                <div class="w-48">
-                    <x-md3-select
-                        name="assignee"
-                        label="Người thực hiện"
-                        placeholder="Tất cả"
-                        :value="$filters['assignee'] ?? null"
-                        :options="$members->map(fn ($m) => ['value' => $m['id'], 'label' => $m['name']])"
-                    />
-                </div>
-                <div class="flex gap-2">
-                    <x-primary-button>Lọc</x-primary-button>
-                    @if ($hasFilters)
-                        <a href="{{ route('issues.index', $project['id']) }}">
-                            <x-secondary-button type="button">Xoá lọc</x-secondary-button>
-                        </a>
-                    @endif
-                </div>
-            </form>
+                @if ($showFilters)
+                    <form
+                        method="GET"
+                        action="{{ route('issues.index', $project['id']) }}"
+                        class="flex flex-wrap items-end gap-3 border-t border-outline-variant px-4 py-4 sm:px-6 sm:py-5"
+                    >
+                        <div class="min-w-48 flex-1">
+                            <x-md3-text-field name="q" label="Tìm theo tiêu đề" :value="$filters['q'] ?? null" />
+                        </div>
+                        <div class="w-40">
+                            <x-md3-select
+                                name="type"
+                                label="Loại"
+                                placeholder="Tất cả"
+                                :value="$filters['type'] ?? null"
+                                :options="collect($typeLabels)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()"
+                            />
+                        </div>
+                        <div class="w-44">
+                            <x-md3-select
+                                name="status"
+                                label="Trạng thái"
+                                placeholder="Tất cả"
+                                :value="$filters['status'] ?? null"
+                                :options="collect($statusLabels)->map(fn ($label, $value) => ['value' => $value, 'label' => $label])->values()"
+                            />
+                        </div>
+                        <div class="w-48">
+                            <x-md3-select
+                                name="assignee"
+                                label="Người thực hiện"
+                                placeholder="Tất cả"
+                                :value="$filters['assignee'] ?? null"
+                                :options="$members->map(fn ($m) => ['value' => $m['id'], 'label' => $m['name']])"
+                            />
+                        </div>
+                        <div class="flex gap-2">
+                            <x-primary-button>Lọc</x-primary-button>
+                            @if ($hasFilters)
+                                <a href="{{ route('issues.index', $project['id']) }}">
+                                    <x-secondary-button type="button">Xoá lọc</x-secondary-button>
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                @endif
 
-            @if ($issues->isEmpty())
-                <section class="rounded-3xl bg-surface-container-lowest p-10 text-center shadow-elevation-1">
-                    <p class="text-on-surface-variant">
-                        {{ $hasFilters ? 'Không có issue nào khớp bộ lọc.' : 'Dự án chưa có issue nào.' }}
-                    </p>
-                    @unless ($hasFilters)
-                        <a
-                            href="{{ $newIssueUrl }}"
-                            class="mt-4 inline-flex rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
-                        >
-                            Tạo issue đầu tiên
-                        </a>
-                    @endunless
-                </section>
-            @else
-                <section class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[52rem] text-left text-sm">
+                @if ($issues->isEmpty())
+                    <div class="border-t border-outline-variant px-6 py-16 text-center">
+                        <p class="text-on-surface-variant">
+                            {{ $hasFilters ? 'Không có issue nào khớp bộ lọc.' : 'Dự án chưa có issue nào.' }}
+                        </p>
+                        @unless ($hasFilters)
+                            <a
+                                href="{{ $newIssueUrl }}"
+                                class="mt-4 inline-flex rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
+                            >
+                                Tạo issue đầu tiên
+                            </a>
+                        @endunless
+                    </div>
+                @else
+                    <ul class="divide-y divide-outline-variant border-t border-outline-variant lg:hidden">
+                        @foreach ($issues as $issue)
+                            <li>
+                                <a
+                                    href="{{ route('issues.show', [$project['id'], $issue->id]) }}"
+                                    class="block px-4 py-4 transition-colors {{ $priorityRows[$issue->priority->value] }}"
+                                >
+                                    <div class="flex items-start justify-between gap-3">
+                                        <span class="font-medium text-on-surface">{{ $issue->title }}</span>
+                                        <span class="shrink-0 pt-0.5 text-xs tabular-nums text-on-surface-variant">#{{ $issue->id }}</span>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
+                                            {{ $typeLabels[$issue->type->value] }}
+                                        </span>
+                                        <span class="{{ $badgeBase }} {{ $statusBadges[$issue->status->value] }}">
+                                            {{ $statusLabels[$issue->status->value] }}
+                                        </span>
+                                        <span class="{{ $priorityBadges[$issue->priority->value] }}">
+                                            {{ $priorityLabels[$issue->priority->value] }}
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-on-surface-variant">
+                                        <span>{{ $issue->assignee?->name ?? 'Chưa gán' }}</span>
+                                        <span>Hạn {{ $issue->due_date?->format('d/m/Y') ?? '—' }}</span>
+                                        <span class="tabular-nums">{{ $issue->percent_done }}% done</span>
+                                    </div>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <div class="hidden overflow-x-auto border-t border-outline-variant lg:block">
+                        <table class="w-full min-w-[58rem] text-left text-sm">
                             <thead class="border-b border-outline-variant text-xs uppercase tracking-wide text-on-surface-variant">
                                 <tr>
                                     <th class="px-4 py-3 font-medium">#</th>
@@ -122,14 +163,15 @@
                                     <th class="px-4 py-3 font-medium">Loại</th>
                                     <th class="px-4 py-3 font-medium">Trạng thái</th>
                                     <th class="px-4 py-3 font-medium">Ưu tiên</th>
+                                    <th class="whitespace-nowrap px-4 py-3 text-right font-medium">% Done</th>
                                     <th class="px-4 py-3 font-medium">Người thực hiện</th>
                                     <th class="px-4 py-3 font-medium">Hạn</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant">
                                 @foreach ($issues as $issue)
-                                    <tr class="transition hover:bg-on-surface/8">
-                                        <td class="px-4 py-3 text-on-surface-variant">{{ $issue->id }}</td>
+                                    <tr class="transition-colors {{ $priorityRows[$issue->priority->value] }}">
+                                        <td class="px-4 py-3 tabular-nums text-on-surface-variant">{{ $issue->id }}</td>
                                         <td class="px-4 py-3">
                                             <a
                                                 href="{{ route('issues.show', [$project['id'], $issue->id]) }}"
@@ -137,9 +179,6 @@
                                             >
                                                 {{ $issue->title }}
                                             </a>
-                                            @if ($issue->percent_done > 0)
-                                                <span class="ml-2 text-xs text-on-surface-variant">{{ $issue->percent_done }}%</span>
-                                            @endif
                                         </td>
                                         <td class="px-4 py-3">
                                             <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
@@ -152,14 +191,17 @@
                                             </span>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <span class="text-xs {{ $priorityBadges[$issue->priority->value] }}">
+                                            <span class="{{ $priorityBadges[$issue->priority->value] }}">
                                                 {{ $priorityLabels[$issue->priority->value] }}
                                             </span>
+                                        </td>
+                                        <td class="whitespace-nowrap px-4 py-3 text-right tabular-nums text-on-surface">
+                                            {{ $issue->percent_done }}%
                                         </td>
                                         <td class="px-4 py-3 text-on-surface-variant">
                                             {{ $issue->assignee?->name ?? '—' }}
                                         </td>
-                                        <td class="px-4 py-3 text-on-surface-variant">
+                                        <td class="whitespace-nowrap px-4 py-3 tabular-nums text-on-surface-variant">
                                             {{ $issue->due_date?->format('d/m/Y') ?? '—' }}
                                         </td>
                                     </tr>
@@ -167,10 +209,27 @@
                             </tbody>
                         </table>
                     </div>
-                </section>
 
-                {{ $issues->links() }}
-            @endif
+                    @if ($issues->hasPages())
+                        <nav
+                            aria-label="Phân trang issue"
+                            class="flex items-center justify-between gap-3 border-t border-outline-variant px-4 py-3 text-sm sm:px-6"
+                        >
+                            @if ($issues->previousPageUrl())
+                                <a class="rounded-full px-4 py-2 text-primary hover:bg-primary/8" href="{{ $issues->previousPageUrl() }}">← Trang trước</a>
+                            @else
+                                <span></span>
+                            @endif
+                            <span class="text-on-surface-variant">{{ $issues->currentPage() }} / {{ $issues->lastPage() }}</span>
+                            @if ($issues->nextPageUrl())
+                                <a class="rounded-full px-4 py-2 text-primary hover:bg-primary/8" href="{{ $issues->nextPageUrl() }}">Trang sau →</a>
+                            @else
+                                <span></span>
+                            @endif
+                        </nav>
+                    @endif
+                @endif
+            </section>
         </div>
     </div>
 </x-app-layout>

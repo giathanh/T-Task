@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="border-b border-outline-variant bg-surface-container-lowest">
     <!-- Primary Navigation Menu -->
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 justify-between">
             <div class="flex items-center gap-8">
                 <!-- Logo -->
@@ -38,6 +38,22 @@
                             </div>
                         </x-slot>
                     </x-dropdown>
+                    @can('access-admin')
+                        <x-dropdown align="left" width="48">
+                            <x-slot name="trigger">
+                                <button type="button" :aria-expanded="open.toString()" aria-controls="desktop-admin" @class(['flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-primary', 'bg-secondary-container text-on-secondary-container' => request()->routeIs('admin.*'), 'text-on-surface-variant hover:bg-on-surface/8' => ! request()->routeIs('admin.*')])>
+                                    Quản trị
+                                    <svg class="size-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true"><path d="m5 7 5 5 5-5" /></svg>
+                                </button>
+                            </x-slot>
+                            <x-slot name="content">
+                                <div id="desktop-admin" @keydown.escape.stop="open = false; $root.querySelector('button').focus()">
+                                    <x-dropdown-link :href="route('admin.projects.index')">Quản lý dự án</x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.users.index')">Quản lý người dùng</x-dropdown-link>
+                                </div>
+                            </x-slot>
+                        </x-dropdown>
+                    @endcan
                 </div>
             </div>
 
@@ -108,6 +124,13 @@
                 @endforelse
             </div>
         </div>
+        @can('access-admin')
+            <div class="border-t border-outline-variant px-3 py-3">
+                <p class="px-4 py-2 text-xs font-medium text-on-surface-variant">Quản trị</p>
+                <x-responsive-nav-link :href="route('admin.projects.index')" :active="request()->routeIs('admin.projects.*')">Quản lý dự án</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">Quản lý người dùng</x-responsive-nav-link>
+            </div>
+        @endcan
         <div class="border-t border-outline-variant pb-3 pt-4">
             <div class="flex items-center gap-3 px-4">
                 <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-base font-medium text-on-primary-container">
