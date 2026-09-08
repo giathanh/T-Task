@@ -103,9 +103,12 @@ class IssueController extends Controller
             'attachments.uploader:id,name',
         ]);
 
+        $notes = $issue->notes()->with('author:id,name')->orderByDesc('id')->paginate(20, ['*'], 'notes_page')->fragment('notes');
+
         return view('issues.show', [
             'project' => $project->only(['id', 'name']),
             'issue' => $issue,
+            'notes' => $notes,
         ]);
     }
 

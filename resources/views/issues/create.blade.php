@@ -9,7 +9,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-6">
         <div class="w-full px-4 sm:px-6 lg:px-8">
             @include('issues.partials.form', [
                 'project' => $project,
