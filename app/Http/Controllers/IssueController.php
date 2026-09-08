@@ -11,9 +11,12 @@ use App\Http\Requests\UpdateIssueRequest;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -34,17 +37,30 @@ class IssueController extends Controller
             'q' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $issues = $project->issues()
-            ->select(['id', 'project_id', 'title', 'type', 'status', 'priority', 'assignee_id', 'due_date', 'percent_done'])
-            ->with('assignee:id,name')
+        $hierarchy = $project->issues()
             ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->when($filters['assignee'] ?? null, fn ($query, $assigneeId) => $query->where('assignee_id', $assigneeId))
             ->when($request->filled('q'), fn ($query) => $query->whereLike('title', '%'.$filters['q'].'%'))
             ->orderByDesc('created_at')
             ->orderByDesc('id')
-            ->paginate(20)
-            ->withQueryString();
+            ->get(['id', 'parent_id']);
+
+        $groups = $this->issueGroups($hierarchy);
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $depths = $groups->forPage($page, 20)->reduce(fn (array $depths, array $group): array => $depths + $group, []);
+        $pageIssues = $project->issues()
+            ->whereKey(array_keys($depths))
+            ->with('assignee:id,name')
+            ->get(['id', 'project_id', 'parent_id', 'title', 'type', 'status', 'priority', 'assignee_id', 'due_date', 'percent_done'])
+            ->keyBy('id');
+        $issues = (new LengthAwarePaginator(
+            new EloquentCollection(array_map(fn (int $id): Issue => $pageIssues[$id], array_keys($depths))),
+            $groups->count(),
+            20,
+            $page,
+            ['path' => $request->url()],
+        ))->withQueryString();
 
         $members = $project->members()
             ->orderBy('name')
@@ -54,10 +70,55 @@ class IssueController extends Controller
         return view('issues.index', [
             'project' => $project->only(['id', 'name']),
             'issues' => $issues,
+            'issueCount' => $hierarchy->count(),
+            'depths' => $depths,
             'members' => $members,
             'filters' => $filters,
             'newIssueUrl' => route('issues.create', $project),
         ]);
+    }
+
+    /**
+     * Keep each matching issue's descendants together, tolerating missing parents and cycles.
+     *
+     * @param  Collection<int, Issue>  $hierarchy
+     * @return Collection<int, array<int, int>>
+     */
+    private function issueGroups(Collection $hierarchy): Collection
+    {
+        $byId = $hierarchy->keyBy('id');
+        $children = $hierarchy->groupBy('parent_id');
+        $roots = $hierarchy->filter(fn (Issue $issue): bool => ! $byId->has($issue->parent_id));
+        $visited = [];
+        $groups = collect();
+
+        foreach ($roots->concat($hierarchy) as $root) {
+            if (isset($visited[$root->id])) {
+                continue;
+            }
+
+            $group = [];
+            $stack = [[$root->id, 0]];
+
+            while ($stack !== []) {
+                [$id, $depth] = array_pop($stack);
+
+                if (isset($visited[$id])) {
+                    continue;
+                }
+
+                $visited[$id] = true;
+                $group[$id] = $depth;
+
+                foreach ($children->get($id, collect())->reverse() as $child) {
+                    $stack[] = [$child->id, $depth + 1];
+                }
+            }
+
+            $groups->push($group);
+        }
+
+        return $groups;
     }
 
     /**
