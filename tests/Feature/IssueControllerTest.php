@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\IssueStatus;
 use App\Enums\ProjectRole;
 use App\Models\Issue;
+use App\Models\IssueNote;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -183,7 +184,37 @@ class IssueControllerTest extends TestCase
             ->assertSee('Checkout crashes on Safari')
             ->assertSee('Reproduces on every Safari 17 build.')
             ->assertSee($assignee->name)
-            ->assertSee('30%');
+            ->assertSee('30%')
+            ->assertSee('href="'.route('issues.index', $project).'"', false)
+            ->assertDontSee('← Tất cả issue');
+    }
+
+    public function test_issue_detail_places_watchers_beside_subtasks_and_note_form_after_notes(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $firstWatcher = $this->memberOf($project);
+        $secondWatcher = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->create();
+        Issue::factory()->for($project)->create([
+            'parent_id' => $issue->id,
+            'title' => 'Prepare release checklist',
+        ]);
+        $issue->watchers()->sync([$firstWatcher->id, $secondWatcher->id]);
+        $note = IssueNote::factory()->for($issue)->for($member, 'author')->create([
+            'body' => 'Ready for final review.',
+        ]);
+
+        $response = $this->actingAs($member)->get(route('issues.show', [$project, $issue]));
+
+        $response
+            ->assertSee($firstWatcher->name.', '.$secondWatcher->name)
+            ->assertSeeInOrder([
+                'id="subtasks"',
+                'id="watchers"',
+                $note->body,
+                'id="new-note"',
+            ], false);
     }
 
     public function test_issue_scoped_to_another_project_is_not_found(): void

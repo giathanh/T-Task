@@ -48,23 +48,16 @@
 
     <div class="py-6">
         <div class="flex w-full flex-col gap-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <a
-                    href="{{ route('issues.index', $project['id']) }}"
-                    class="text-sm font-medium text-on-surface-variant transition hover:text-on-surface"
-                >
-                    ← Tất cả issue
-                </a>
-
-                @can('update', $issue)
+            @can('update', $issue)
+                <div class="flex justify-end">
                     <a
                         href="{{ route('issues.edit', [$project['id'], $issue->id]) }}"
                         class="rounded-full border border-outline px-4 py-1.5 text-sm font-medium text-primary transition hover:bg-primary/8"
                     >
                         Sửa
                     </a>
-                @endcan
-            </div>
+                </div>
+            @endcan
 
             <article aria-labelledby="issue-title" class="min-w-0 divide-y divide-outline-variant rounded-lg border border-outline-variant bg-surface-container-lowest px-4 sm:px-6">
                 <header class="py-5">
@@ -180,50 +173,49 @@
                 </section>
 
                 <section class="py-5">
-                    <h3 class="mb-3 font-medium text-on-surface">
-                        Task con
-                        <span class="text-sm font-normal text-on-surface-variant">({{ $issue->children->count() }})</span>
-                    </h3>
-                    @if ($issue->children->isEmpty())
-                        <p class="text-sm text-on-surface-variant">Không có task con.</p>
-                    @else
-                        <ul class="flex flex-col divide-y divide-outline-variant">
-                            @foreach ($issue->children as $child)
-                                <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                                    <a href="{{ route('issues.show', [$project['id'], $child->id]) }}" class="font-medium text-primary hover:underline">
-                                        #{{ $child->id }} {{ $child->title }}
-                                    </a>
-                                    <span class="flex items-center gap-2">
-                                        <span class="{{ $badgeBase }} {{ $statusBadges[$child->status->value] }}">
-                                            {{ $statusLabels[$child->status->value] }}
-                                        </span>
-                                        @if ($child->percent_done > 0)
-                                            <span class="text-xs text-on-surface-variant">{{ $child->percent_done }}%</span>
-                                        @endif
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-0">
+                        <div id="subtasks" class="min-w-0 md:pr-6">
+                            <h3 class="mb-3 font-medium text-on-surface">
+                                Task con
+                                <span class="text-sm font-normal text-on-surface-variant">({{ $issue->children->count() }})</span>
+                            </h3>
+                            @if ($issue->children->isEmpty())
+                                <p class="text-sm text-on-surface-variant">Không có task con.</p>
+                            @else
+                                <ul class="flex flex-col divide-y divide-outline-variant">
+                                    @foreach ($issue->children as $child)
+                                        <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                                            <a href="{{ route('issues.show', [$project['id'], $child->id]) }}" class="font-medium text-primary hover:underline">
+                                                #{{ $child->id }} {{ $child->title }}
+                                            </a>
+                                            <span class="flex items-center gap-2">
+                                                <span class="{{ $badgeBase }} {{ $statusBadges[$child->status->value] }}">
+                                                    {{ $statusLabels[$child->status->value] }}
+                                                </span>
+                                                @if ($child->percent_done > 0)
+                                                    <span class="text-xs text-on-surface-variant">{{ $child->percent_done }}%</span>
+                                                @endif
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+
+                        <div id="watchers" class="min-w-0 border-t border-outline-variant pt-5 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+                            <h3 class="mb-3 font-medium text-on-surface">
+                                Người theo dõi
+                                <span class="text-sm font-normal text-on-surface-variant">({{ $issue->watchers->count() }})</span>
+                            </h3>
+                            @if ($issue->watchers->isEmpty())
+                                <p class="text-sm text-on-surface-variant">Chưa có người theo dõi.</p>
+                            @else
+                                <p class="break-words text-sm text-on-surface">{{ $issue->watchers->pluck('name')->implode(', ') }}</p>
+                            @endif
+                        </div>
+                    </div>
                 </section>
 
-                <section class="py-5">
-                    <h3 class="mb-3 font-medium text-on-surface">
-                        Người theo dõi
-                        <span class="text-sm font-normal text-on-surface-variant">({{ $issue->watchers->count() }})</span>
-                    </h3>
-                    @if ($issue->watchers->isEmpty())
-                        <p class="text-sm text-on-surface-variant">Chưa có người theo dõi.</p>
-                    @else
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($issue->watchers as $watcher)
-                                <span class="rounded-full border border-outline-variant px-3 py-1 text-sm text-on-surface">
-                                    {{ $watcher->name }}
-                                </span>
-                            @endforeach
-                        </div>
-                    @endif
-                </section>
                 <section id="notes" aria-labelledby="notes-heading" class="scroll-mt-6 py-5">
                     <h3 id="notes-heading" class="mb-4 font-medium text-on-surface">
                         Ghi chú <span class="text-sm font-normal text-on-surface-variant">({{ $notes->total() }})</span>
@@ -232,16 +224,6 @@
                     @if (session('status') === 'issue-note-created')
                         <p role="status" class="mb-4 text-sm text-primary">Đã thêm ghi chú.</p>
                     @endif
-
-                    @can('update', $issue)
-                        <form method="POST" action="{{ route('issues.notes.store', [$project['id'], $issue->id]) }}" class="mb-5 flex flex-col gap-3">
-                            @csrf
-                            <x-md3-textarea name="body" label="Thêm ghi chú" :rows="4" required maxlength="10000" />
-                            <div class="flex justify-end">
-                                <x-primary-button>Thêm ghi chú</x-primary-button>
-                            </div>
-                        </form>
-                    @endcan
 
                     <div class="divide-y divide-outline-variant">
                         @forelse ($notes as $note)
@@ -260,6 +242,16 @@
                     @if ($notes->hasPages())
                         <div class="mt-4">{{ $notes->links() }}</div>
                     @endif
+
+                    @can('update', $issue)
+                        <form id="new-note" method="POST" action="{{ route('issues.notes.store', [$project['id'], $issue->id]) }}" class="mt-5 flex flex-col gap-3 border-t border-outline-variant pt-5">
+                            @csrf
+                            <x-md3-textarea name="body" label="Thêm ghi chú" :rows="4" required maxlength="10000" />
+                            <div class="flex justify-end">
+                                <x-primary-button>Thêm ghi chú</x-primary-button>
+                            </div>
+                        </form>
+                    @endcan
                 </section>
             </article>
         </div>
