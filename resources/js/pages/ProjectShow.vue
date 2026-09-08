@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 
-const props = defineProps({
+const { project, issueStats, currentUserRole } = defineProps({
     project: { type: Object, required: true },
     issueStats: { type: Object, required: true },
     members: { type: Array, required: true },
@@ -35,14 +35,17 @@ const roleBadgeClasses = {
     member: 'bg-surface-container-high text-on-surface-variant',
 };
 
-const canManageMembers = computed(() => ['admin', 'leader'].includes(props.currentUserRole));
+const canManageMembers = computed(() => ['admin', 'leader'].includes(currentUserRole));
 
 const isOverdue = computed(() => {
-    if (!props.project.dueDate || ['completed', 'archived'].includes(props.project.status)) {
+    if (!project.dueDate || ['completed', 'archived'].includes(project.status)) {
         return false;
     }
 
-    return new Date(props.project.dueDate) < new Date(new Date().toDateString());
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return new Date(`${project.dueDate}T00:00:00`) < today;
 });
 
 function formatDate(value) {
@@ -50,7 +53,7 @@ function formatDate(value) {
         return null;
     }
 
-    return new Date(value).toLocaleDateString('vi-VN');
+    return new Date(`${value}T00:00:00`).toLocaleDateString('vi-VN');
 }
 
 function initials(name) {
@@ -68,15 +71,15 @@ const issueCards = computed(() => [
         key: 'task',
         title: 'Tasks',
         icon: '📋',
-        total: props.issueStats.task.total,
-        byStatus: props.issueStats.task.by_status,
+        total: issueStats.task.total,
+        byStatus: issueStats.task.by_status,
     },
     {
         key: 'bug',
         title: 'Bugs',
         icon: '🐛',
-        total: props.issueStats.bug.total,
-        byStatus: props.issueStats.bug.by_status,
+        total: issueStats.bug.total,
+        byStatus: issueStats.bug.by_status,
     },
 ]);
 </script>
