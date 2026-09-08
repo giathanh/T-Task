@@ -35,12 +35,14 @@ class IssueController extends Controller
         ]);
 
         $issues = $project->issues()
+            ->select(['id', 'project_id', 'title', 'type', 'status', 'priority', 'assignee_id', 'due_date', 'percent_done'])
             ->with('assignee:id,name')
             ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
             ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
             ->when($filters['assignee'] ?? null, fn ($query, $assigneeId) => $query->where('assignee_id', $assigneeId))
-            ->when($filters['q'] ?? null, fn ($query, $term) => $query->where('title', 'like', '%'.$term.'%'))
+            ->when($request->filled('q'), fn ($query) => $query->whereLike('title', '%'.$filters['q'].'%'))
             ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->paginate(20)
             ->withQueryString();
 
@@ -101,9 +103,12 @@ class IssueController extends Controller
             'attachments.uploader:id,name',
         ]);
 
+        $notes = $issue->notes()->with('author:id,name')->orderByDesc('id')->paginate(20, ['*'], 'notes_page')->fragment('notes');
+
         return view('issues.show', [
             'project' => $project->only(['id', 'name']),
             'issue' => $issue,
+            'notes' => $notes,
         ]);
     }
 
@@ -178,7 +183,8 @@ class IssueController extends Controller
         $validated = $request->validated();
 
         $issue = $project->issues()->create([
-            ...Arr::except($validated, ['watchers', 'attachments', 'is_private', 'percent_done']),
+            ...Arr::except($validated, ['watchers', 'attachments', 'is_private', 'percent_done', 'severity']),
+            'severity' => $validated['type'] === IssueType::Bug->value ? ($validated['severity'] ?? null) : null,
             'percent_done' => $validated['percent_done'] ?? 0,
             'is_private' => $request->boolean('is_private'),
             'created_by' => $request->user()->id,

@@ -82,6 +82,23 @@ class WikiControllerTest extends TestCase
             ->assertSee('Hướng dẫn cài đặt');
     }
 
+    public function test_wiki_pages_are_paginated_with_total_and_navigation(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        WikiPage::factory()->for($project)->count(21)
+            ->sequence(fn ($sequence) => ['title' => sprintf('Page %02d', $sequence->index)])
+            ->create();
+        WikiPage::factory()->create(['title' => 'Foreign page']);
+
+        $this->actingAs($member)->get(route('projects.wiki.index', [$project, 'page' => 2]))
+            ->assertSee('Các trang (21)')
+            ->assertSee('Page 20')
+            ->assertDontSee('Page 00')
+            ->assertDontSee('Foreign page')
+            ->assertViewHas('pages', fn ($pages) => $pages->total() === 21 && $pages->count() === 1 && $pages->previousPageUrl() !== null);
+    }
+
     public function test_member_can_open_the_create_form(): void
     {
         $project = Project::factory()->create(['name' => 'Website Redesign']);

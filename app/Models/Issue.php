@@ -73,6 +73,11 @@ class Issue extends Model
         return $this->belongsToMany(User::class, 'issue_watchers')->withTimestamps();
     }
 
+    public function notes(): HasMany
+    {
+        return $this->hasMany(IssueNote::class);
+    }
+
     public function attachments(): HasMany
     {
         return $this->hasMany(IssueAttachment::class);
