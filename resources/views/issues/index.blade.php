@@ -27,7 +27,7 @@
         'urgent' => 'bg-priority-urgent-container hover:bg-priority-urgent-container-hover',
     ];
     $hasFilters = collect($filters)->filter(fn ($value) => $value !== null && $value !== '')->isNotEmpty();
-    $showFilters = $hasFilters || $issues->total() > 0;
+    $showFilters = $hasFilters || $issueCount > 0;
 @endphp
 
 <x-app-layout>
@@ -46,11 +46,12 @@
             <section class="overflow-hidden rounded-3xl bg-surface-container-lowest shadow-elevation-1">
                 <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-5">
                     <h3 class="font-medium text-on-surface">
-                        {{ $issues->total() }} issue{{ $issues->total() === 1 ? '' : 's' }}
+                        {{ $issueCount }} issue{{ $issueCount === 1 ? '' : 's' }}
                         @if ($hasFilters)
                             <span class="text-sm font-normal text-on-surface-variant">khớp bộ lọc</span>
                         @endif
                     </h3>
+                    <p class="text-xs text-on-surface-variant">Cha trước, con bên dưới · 20 nhóm mỗi trang</p>
 
                     <a
                         href="{{ $newIssueUrl }}"
@@ -128,11 +129,20 @@
                                 <a
                                     href="{{ route('issues.show', [$project['id'], $issue->id]) }}"
                                     class="block px-4 py-4 transition-colors {{ $priorityRows[$issue->priority->value] }}"
+                                    style="padding-inline-start: {{ 1 + min($depths[$issue->id], 6) * 1.25 }}rem"
                                 >
                                     <div class="flex items-start justify-between gap-3">
-                                        <span class="font-medium text-on-surface">{{ $issue->title }}</span>
+                                        <span class="font-medium text-on-surface">
+                                            @if ($depths[$issue->id] > 0)
+                                                <span aria-hidden="true" class="text-on-surface-variant">↳</span>
+                                            @endif
+                                            {{ $issue->title }}
+                                        </span>
                                         <span class="shrink-0 pt-0.5 text-xs tabular-nums text-on-surface-variant">#{{ $issue->id }}</span>
                                     </div>
+                                    @if ($issue->parent_id)
+                                        <p class="mt-1 text-xs text-on-surface-variant">Issue cha #{{ $issue->parent_id }}</p>
+                                    @endif
                                     <div class="mt-2 flex flex-wrap items-center gap-2">
                                         <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
                                             {{ $typeLabels[$issue->type->value] }}
@@ -172,13 +182,19 @@
                                 @foreach ($issues as $issue)
                                     <tr class="transition-colors {{ $priorityRows[$issue->priority->value] }}">
                                         <td class="px-4 py-3 tabular-nums text-on-surface-variant">{{ $issue->id }}</td>
-                                        <td class="px-4 py-3">
+                                        <td class="px-4 py-3" style="padding-inline-start: {{ 1 + min($depths[$issue->id], 6) * 1.25 }}rem">
+                                            @if ($depths[$issue->id] > 0)
+                                                <span aria-hidden="true" class="text-on-surface-variant">↳</span>
+                                            @endif
                                             <a
                                                 href="{{ route('issues.show', [$project['id'], $issue->id]) }}"
                                                 class="font-medium text-on-surface hover:text-primary hover:underline"
                                             >
                                                 {{ $issue->title }}
                                             </a>
+                                            @if ($issue->parent_id)
+                                                <p class="mt-1 text-xs text-on-surface-variant">Issue cha #{{ $issue->parent_id }}</p>
+                                            @endif
                                         </td>
                                         <td class="px-4 py-3">
                                             <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">

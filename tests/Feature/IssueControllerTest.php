@@ -148,6 +148,71 @@ class IssueControllerTest extends TestCase
             ->assertSessionHasErrors('status');
     }
 
+    public function test_issue_list_places_children_and_grandchildren_below_their_parents(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $parent = Issue::factory()->for($project)->create(['title' => 'Parent work']);
+        $child = Issue::factory()->for($project)->for($parent, 'parent')->create(['title' => 'Child work']);
+        $grandchild = Issue::factory()->for($project)->for($child, 'parent')->create(['title' => 'Nested work']);
+        $sibling = Issue::factory()->for($project)->for($parent, 'parent')->create(['title' => 'Newer sibling']);
+        $other = Issue::factory()->for($project)->create(['title' => 'Independent work']);
+
+        $response = $this->actingAs($member)->get(route('issues.index', $project));
+
+        $response->assertOk()
+            ->assertViewHas('issues', fn ($issues) => $issues->modelKeys() === [$other->id, $parent->id, $sibling->id, $child->id, $grandchild->id])
+            ->assertViewHas('issueCount', 5)
+            ->assertSee('Issue cha #'.$child->id);
+        $this->assertSame(2, $response->viewData('depths')[$grandchild->id]);
+        $this->assertSame(2, substr_count($response->getContent(), 'padding-inline-start: 3.5rem'));
+    }
+
+    public function test_issue_pagination_keeps_a_whole_family_on_the_same_page(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $parent = Issue::factory()->for($project)->create(['title' => 'Old parent']);
+        Issue::factory()->for($project)->count(20)->create();
+        $child = Issue::factory()->for($project)->for($parent, 'parent')->create(['title' => 'Recent child']);
+
+        $this->actingAs($member)->get(route('issues.index', $project))
+            ->assertDontSee('Old parent')
+            ->assertDontSee('Recent child')
+            ->assertViewHas('issueCount', 22);
+        $this->get(route('issues.index', [$project, 'page' => 2]))
+            ->assertViewHas('issues', fn ($issues) => $issues->modelKeys() === [$parent->id, $child->id]);
+    }
+
+    public function test_filtered_child_is_visible_when_its_parent_does_not_match(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $parent = Issue::factory()->for($project)->status(IssueStatus::Done)->create(['title' => 'Finished parent']);
+        $child = Issue::factory()->for($project)->for($parent, 'parent')->status(IssueStatus::Open)->create(['title' => 'Matching child']);
+        $grandchild = Issue::factory()->for($project)->for($child, 'parent')->status(IssueStatus::Open)->create();
+
+        $this->actingAs($member)->get(route('issues.index', [$project, 'status' => 'open']))
+            ->assertSee('Matching child')
+            ->assertSee('Issue cha #'.$parent->id)
+            ->assertDontSee('Finished parent')
+            ->assertViewHas('issueCount', 2)
+            ->assertViewHas('issues', fn ($issues) => $issues->modelKeys() === [$child->id, $grandchild->id]);
+    }
+
+    public function test_issue_list_displays_each_issue_once_when_parent_links_form_a_cycle(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $first = Issue::factory()->for($project)->create();
+        $second = Issue::factory()->for($project)->for($first, 'parent')->create();
+        $first->update(['parent_id' => $second->id]);
+
+        $this->actingAs($member)->get(route('issues.index', $project))
+            ->assertOk()
+            ->assertViewHas('issues', fn ($issues) => $issues->modelKeys() === [$second->id, $first->id]);
+    }
+
     public function test_guest_is_redirected_to_login_from_the_issue_detail(): void
     {
         $issue = Issue::factory()->create();

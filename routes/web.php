@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IssueController;
+use App\Http\Controllers\IssueNoteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\WikiController;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/issues', [IssueController::class, 'store'])->name('issues.store');
 
     Route::scopeBindings()->group(function () {
+        Route::post('/projects/{project}/issues/{issue}/notes', [IssueNoteController::class, 'store'])->name('issues.notes.store');
         Route::get('/projects/{project}/issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
         Route::get('/projects/{project}/issues/{issue}/edit', [IssueController::class, 'edit'])->name('issues.edit');
         Route::put('/projects/{project}/issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
