@@ -7,6 +7,7 @@ use App\Enums\IssueSeverity;
 use App\Enums\IssueStatus;
 use App\Enums\IssueType;
 use App\Http\Requests\StoreIssueRequest;
+use App\Http\Requests\UpdateIssueRequest;
 use App\Models\Issue;
 use App\Models\Project;
 use App\Models\User;
@@ -82,6 +83,91 @@ class IssueController extends Controller
             'priorityOptions' => IssuePriority::cases(),
             'severityOptions' => IssueSeverity::cases(),
         ]);
+    }
+
+    /**
+     * Show a single issue with its people, scheduling and related issues.
+     */
+    public function show(Project $project, Issue $issue): View
+    {
+        Gate::authorize('view', $issue);
+
+        $issue->load([
+            'assignee:id,name',
+            'reporter:id,name',
+            'parent:id,title,type',
+            'children' => fn ($query) => $query->orderBy('title')->select(['id', 'parent_id', 'title', 'type', 'status', 'percent_done']),
+            'watchers:id,name',
+            'attachments.uploader:id,name',
+        ]);
+
+        return view('issues.show', [
+            'project' => $project->only(['id', 'name']),
+            'issue' => $issue,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the given issue.
+     */
+    public function edit(Project $project, Issue $issue): View
+    {
+        Gate::authorize('update', $issue);
+
+        $issue->load('watchers:id');
+
+        $members = $project->members()
+            ->orderBy('name')
+            ->get(['users.id', 'users.name'])
+            ->map(fn (User $member) => ['id' => $member->id, 'name' => $member->name]);
+
+        $parentOptions = $project->issues()
+            ->whereKeyNot($issue->id)
+            ->orderBy('title')
+            ->get(['id', 'title', 'type']);
+
+        return view('issues.edit', [
+            'project' => $project->only(['id', 'name']),
+            'issue' => $issue,
+            'members' => $members,
+            'parentOptions' => $parentOptions,
+            'trackerOptions' => IssueType::cases(),
+            'statusOptions' => IssueStatus::cases(),
+            'priorityOptions' => IssuePriority::cases(),
+            'severityOptions' => IssueSeverity::cases(),
+        ]);
+    }
+
+    /**
+     * Update the given issue.
+     */
+    public function update(UpdateIssueRequest $request, Project $project, Issue $issue): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        $issue->update([
+            ...Arr::except($validated, ['watchers', 'attachments', 'is_private', 'percent_done', 'severity']),
+            'severity' => $validated['type'] === IssueType::Bug->value ? ($validated['severity'] ?? null) : null,
+            'percent_done' => $validated['percent_done'] ?? 0,
+            'is_private' => $request->boolean('is_private'),
+        ]);
+
+        $issue->watchers()->sync($validated['watchers'] ?? []);
+
+        foreach ($request->file('attachments', []) as $file) {
+            $path = $file->store('issue-attachments/'.$issue->id);
+
+            $issue->attachments()->create([
+                'path' => $path,
+                'original_name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'uploaded_by' => $request->user()->id,
+            ]);
+        }
+
+        return redirect()
+            ->route('issues.show', [$project, $issue])
+            ->with('status', 'issue-updated');
     }
 
     /**

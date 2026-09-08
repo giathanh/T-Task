@@ -8,7 +8,7 @@
 
     $tabs = [
         ['key' => 'overview', 'label' => 'Tổng quan', 'url' => route('projects.show', $projectId)],
-        ['key' => 'activity', 'label' => 'Activity', 'url' => null],
+        ['key' => 'activity', 'label' => 'Activity', 'url' => route('projects.activity', $projectId)],
         ['key' => 'issues', 'label' => 'Issues', 'url' => route('issues.index', $projectId)],
         ['key' => 'wiki', 'label' => 'Wiki', 'url' => route('projects.wiki.index', $projectId)],
         ['key' => 'calendar', 'label' => 'Calendar', 'url' => null],

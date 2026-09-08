@@ -131,7 +131,12 @@
                                     <tr class="transition hover:bg-on-surface/8">
                                         <td class="px-4 py-3 text-on-surface-variant">{{ $issue->id }}</td>
                                         <td class="px-4 py-3">
-                                            <span class="font-medium text-on-surface">{{ $issue->title }}</span>
+                                            <a
+                                                href="{{ route('issues.show', [$project['id'], $issue->id]) }}"
+                                                class="font-medium text-on-surface hover:text-primary hover:underline"
+                                            >
+                                                {{ $issue->title }}
+                                            </a>
                                             @if ($issue->percent_done > 0)
                                                 <span class="ml-2 text-xs text-on-surface-variant">{{ $issue->percent_done }}%</span>
                                             @endif

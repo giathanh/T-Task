@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -10,14 +12,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', HomeController::class)->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/projects/{project}/activity', ActivityController::class)->name('projects.activity');
 
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
@@ -26,6 +28,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/issues', [IssueController::class, 'store'])->name('issues.store');
 
     Route::scopeBindings()->group(function () {
+        Route::get('/projects/{project}/issues/{issue}', [IssueController::class, 'show'])->name('issues.show');
+        Route::get('/projects/{project}/issues/{issue}/edit', [IssueController::class, 'edit'])->name('issues.edit');
+        Route::put('/projects/{project}/issues/{issue}', [IssueController::class, 'update'])->name('issues.update');
+
         Route::get('/projects/{project}/wiki', [WikiController::class, 'index'])->name('projects.wiki.index');
         Route::get('/projects/{project}/wiki/create', [WikiController::class, 'create'])->name('projects.wiki.create');
         Route::post('/projects/{project}/wiki', [WikiController::class, 'store'])->name('projects.wiki.store');

@@ -93,6 +93,177 @@ class IssueControllerTest extends TestCase
             ->assertSessionHasErrors('status');
     }
 
+    public function test_guest_is_redirected_to_login_from_the_issue_detail(): void
+    {
+        $issue = Issue::factory()->create();
+
+        $this->get(route('issues.show', [$issue->project, $issue]))
+            ->assertRedirect(route('login'));
+    }
+
+    public function test_non_member_is_forbidden_from_viewing_an_issue(): void
+    {
+        $issue = Issue::factory()->create();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('issues.show', [$issue->project, $issue]))
+            ->assertForbidden();
+    }
+
+    public function test_member_sees_the_issue_detail(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $assignee = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->create([
+            'title' => 'Checkout crashes on Safari',
+            'description' => 'Reproduces on every Safari 17 build.',
+            'assignee_id' => $assignee->id,
+            'percent_done' => 30,
+        ]);
+
+        $this->actingAs($member)
+            ->get(route('issues.show', [$project, $issue]))
+            ->assertOk()
+            ->assertSee('Checkout crashes on Safari')
+            ->assertSee('Reproduces on every Safari 17 build.')
+            ->assertSee($assignee->name)
+            ->assertSee('30%');
+    }
+
+    public function test_issue_scoped_to_another_project_is_not_found(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $otherIssue = Issue::factory()->create();
+
+        $this->actingAs($member)
+            ->get(route('issues.show', [$project, $otherIssue]))
+            ->assertNotFound();
+    }
+
+    public function test_non_member_is_forbidden_from_editing_an_issue(): void
+    {
+        $issue = Issue::factory()->create();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('issues.edit', [$issue->project, $issue]))
+            ->assertForbidden();
+    }
+
+    public function test_member_can_view_the_edit_form(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->create(['title' => 'Broken export button']);
+
+        $this->actingAs($member)
+            ->get(route('issues.edit', [$project, $issue]))
+            ->assertOk()
+            ->assertSee('Broken export button');
+    }
+
+    public function test_non_member_is_forbidden_from_updating_an_issue(): void
+    {
+        $issue = Issue::factory()->for(Project::factory())->create(['title' => 'Original title']);
+
+        $this->actingAs(User::factory()->create())
+            ->put(route('issues.update', [$issue->project, $issue]), [
+                'title' => 'Hijacked title',
+                'type' => 'task',
+                'status' => 'open',
+                'priority' => 'normal',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('issues', ['id' => $issue->id, 'title' => 'Original title']);
+    }
+
+    public function test_member_can_update_an_issue_and_is_redirected_to_the_detail(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $assignee = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->status(IssueStatus::Open)->create([
+            'title' => 'Old title',
+            'percent_done' => 0,
+        ]);
+
+        $response = $this->actingAs($member)->put(route('issues.update', [$project, $issue]), [
+            'title' => 'New title',
+            'description' => 'Updated details.',
+            'type' => 'task',
+            'status' => 'in_progress',
+            'priority' => 'high',
+            'assignee_id' => $assignee->id,
+            'percent_done' => 60,
+        ]);
+
+        $response->assertRedirect(route('issues.show', [$project, $issue]));
+
+        $this->assertDatabaseHas('issues', [
+            'id' => $issue->id,
+            'title' => 'New title',
+            'description' => 'Updated details.',
+            'status' => 'in_progress',
+            'priority' => 'high',
+            'assignee_id' => $assignee->id,
+            'percent_done' => 60,
+        ]);
+    }
+
+    public function test_update_syncs_watchers(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $keptWatcher = $this->memberOf($project);
+        $droppedWatcher = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->task()->create();
+        $issue->watchers()->sync([$keptWatcher->id, $droppedWatcher->id]);
+
+        $this->actingAs($member)->put(route('issues.update', [$project, $issue]), [
+            'title' => $issue->title,
+            'type' => $issue->type->value,
+            'status' => $issue->status->value,
+            'priority' => $issue->priority->value,
+            'watchers' => [$keptWatcher->id],
+        ]);
+
+        $this->assertTrue($issue->watchers()->whereKey($keptWatcher->id)->exists());
+        $this->assertFalse($issue->watchers()->whereKey($droppedWatcher->id)->exists());
+    }
+
+    public function test_update_clears_severity_when_tracker_changes_from_bug_to_task(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->bug()->create();
+
+        $this->actingAs($member)->put(route('issues.update', [$project, $issue]), [
+            'title' => $issue->title,
+            'type' => 'task',
+            'status' => $issue->status->value,
+            'priority' => $issue->priority->value,
+        ]);
+
+        $this->assertDatabaseHas('issues', ['id' => $issue->id, 'severity' => null]);
+    }
+
+    public function test_update_rejects_an_issue_set_as_its_own_parent(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->task()->create();
+
+        $this->actingAs($member)->put(route('issues.update', [$project, $issue]), [
+            'title' => $issue->title,
+            'type' => 'task',
+            'status' => $issue->status->value,
+            'priority' => $issue->priority->value,
+            'parent_id' => $issue->id,
+        ])->assertSessionHasErrors('parent_id');
+    }
+
     public function test_guest_is_redirected_to_login_when_viewing_create_form(): void
     {
         $project = Project::factory()->create();
