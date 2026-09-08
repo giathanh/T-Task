@@ -83,6 +83,29 @@ class IssueControllerTest extends TestCase
             ->assertDontSee('Update onboarding copy');
     }
 
+    public function test_title_search_accepts_zero(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->create(['title' => 'Fix error 0']);
+        Issue::factory()->for($project)->create(['title' => 'Unrelated work']);
+
+        $this->actingAs($member)->get(route('issues.index', [$project, 'q' => '0']))
+            ->assertSee('Fix error 0')
+            ->assertDontSee('Unrelated work')
+            ->assertViewHas('issues', fn ($issues) => $issues->total() === 1);
+    }
+
+    public function test_issue_pagination_is_stable_when_creation_times_match(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $issues = Issue::factory()->for($project)->count(21)->create(['created_at' => now()->startOfDay()]);
+
+        $this->actingAs($member)->get(route('issues.index', [$project, 'page' => 2]))
+            ->assertViewHas('issues', fn ($page) => $page->modelKeys() === [$issues->first()->id]);
+    }
+
     public function test_invalid_status_filter_fails_validation(): void
     {
         $project = Project::factory()->create();
@@ -446,6 +469,47 @@ class IssueControllerTest extends TestCase
             'title' => 'Redesign checkout flow',
             'percent_done' => 40,
         ]);
+    }
+
+    public function test_task_creation_discards_bug_severity_and_accepts_due_date_without_start_date(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+
+        $this->actingAs($member)->post(route('issues.store', $project), [
+            'title' => 'Task with deadline',
+            'type' => 'task',
+            'status' => 'open',
+            'priority' => 'normal',
+            'severity' => 'critical',
+            'start_date' => null,
+            'due_date' => '2026-09-19',
+        ])->assertRedirect(route('projects.show', $project))->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('issues', [
+            'project_id' => $project->id,
+            'title' => 'Task with deadline',
+            'severity' => null,
+            'start_date' => null,
+            'due_date' => '2026-09-19 00:00:00',
+        ]);
+    }
+
+    public function test_issue_update_accepts_due_date_without_start_date(): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        $issue = Issue::factory()->for($project)->task()->create();
+
+        $this->actingAs($member)->put(route('issues.update', [$project, $issue]), [
+            'title' => $issue->title,
+            'type' => 'task',
+            'status' => 'open',
+            'priority' => 'normal',
+            'due_date' => '2026-09-19',
+        ])->assertRedirect(route('issues.show', [$project, $issue]))->assertSessionHasNoErrors();
+
+        $this->assertSame('2026-09-19', $issue->fresh()->due_date->toDateString());
     }
 
     public function test_watchers_are_attached_to_the_created_issue(): void

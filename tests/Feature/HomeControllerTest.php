@@ -81,7 +81,8 @@ class HomeControllerTest extends TestCase
     public function test_empty_home_explains_assignments(): void
     {
         $this->actingAs(User::factory()->create())->get(route('dashboard'))
-            ->assertSee('Bạn chưa được giao công việc nào');
+            ->assertSee('Bạn chưa được giao công việc nào')
+            ->assertViewHas('stats', ['total' => 0, 'in_progress' => 0, 'overdue' => 0, 'done' => 0]);
     }
 
     public function test_unmatched_filter_shows_filtered_empty_state(): void

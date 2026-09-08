@@ -23,12 +23,13 @@ class HomeController extends Controller
             ->whereHas('project.members', fn ($query) => $query->whereKey($request->user()->id));
 
         $today = today();
-        $stats = [
-            'total' => (clone $assigned)->count(),
-            'in_progress' => (clone $assigned)->where('status', IssueStatus::InProgress)->count(),
-            'overdue' => (clone $assigned)->where('status', '!=', IssueStatus::Done)->where('due_date', '<', $today)->count(),
-            'done' => (clone $assigned)->where('status', IssueStatus::Done)->count(),
-        ];
+        $summary = (clone $assigned)->toBase()
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw('COUNT(CASE WHEN status = ? THEN 1 END) as in_progress', [IssueStatus::InProgress->value])
+            ->selectRaw('COUNT(CASE WHEN status != ? AND due_date < ? THEN 1 END) as overdue', [IssueStatus::Done->value, $today->toDateString()])
+            ->selectRaw('COUNT(CASE WHEN status = ? THEN 1 END) as done', [IssueStatus::Done->value])
+            ->first();
+        $stats = array_map(intval(...), (array) $summary);
 
         $issues = $assigned
             ->select(['id', 'project_id', 'title', 'type', 'status', 'priority', 'due_date', 'percent_done'])

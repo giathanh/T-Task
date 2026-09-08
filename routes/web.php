@@ -6,10 +6,11 @@ use App\Http\Controllers\IssueController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\WikiController;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (): RedirectResponse {
+    return to_route(auth()->check() ? 'dashboard' : 'login');
 });
 
 Route::get('/dashboard', HomeController::class)->middleware(['auth', 'verified'])->name('dashboard');

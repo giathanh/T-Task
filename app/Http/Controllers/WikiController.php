@@ -24,7 +24,8 @@ class WikiController extends Controller
         $pages = $project->wikiPages()
             ->with('editor:id,name')
             ->orderBy('title')
-            ->get(['id', 'title', 'slug', 'updated_at', 'updated_by']);
+            ->orderBy('id')
+            ->paginate(20, ['id', 'title', 'slug', 'updated_at', 'updated_by']);
 
         return view('projects.wiki.index', [
             'project' => $project,
