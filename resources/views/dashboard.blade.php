@@ -16,7 +16,7 @@
         </div>
     </x-slot>
 
-    <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="flex w-full flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <section aria-label="Tổng quan công việc" class="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5">
             @foreach ([['total', 'Được giao cho bạn', 'bg-primary-container text-on-primary-container'], ['in_progress', 'Đang thực hiện', 'bg-surface-container-lowest text-on-surface'], ['overdue', 'Đã quá hạn', 'bg-error-container text-on-error-container'], ['done', 'Đã hoàn thành', 'bg-surface-container-lowest text-on-surface']] as [$key, $label, $colors])
                 <div class="rounded-3xl p-5 sm:p-6 {{ $colors }}">

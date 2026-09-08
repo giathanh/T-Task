@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "resources/css/app.css"
+        ],
+        "createdAt": "2026-09-08T02:13:39.871Z",
+        "reason": "pre-existing .wiki-content blockquote rule (L243), untouched by this quieter pass: a left rule on a blockquote is the standard typographic convention, not a card side-tab"
+      }
+    ]
+  }
+}
