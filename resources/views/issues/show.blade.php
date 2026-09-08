@@ -47,7 +47,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="mx-auto flex max-w-6xl flex-col gap-6 sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col gap-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <a
                     href="{{ route('issues.index', $project['id']) }}"

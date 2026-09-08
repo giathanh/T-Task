@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class IssueControllerTest extends TestCase
@@ -53,6 +54,37 @@ class IssueControllerTest extends TestCase
             ->assertOk()
             ->assertSee('Broken login form')
             ->assertDontSee('Issue from another project');
+    }
+
+    #[TestWith(['low', 'hover:bg-on-surface/8'])]
+    #[TestWith(['normal', 'hover:bg-on-surface/8'])]
+    #[TestWith(['high', 'bg-priority-high-container hover:bg-priority-high-container-hover'])]
+    #[TestWith(['urgent', 'bg-priority-urgent-container hover:bg-priority-urgent-container-hover'])]
+    public function test_issue_row_background_matches_its_priority(string $priority, string $rowClass): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->create(['priority' => $priority]);
+
+        $this->actingAs($member)
+            ->get(route('issues.index', $project))
+            ->assertOk()
+            ->assertSee('<tr class="transition-colors '.$rowClass.'">', false);
+    }
+
+    #[TestWith([0])]
+    #[TestWith([40])]
+    #[TestWith([100])]
+    public function test_issue_list_displays_percent_done_in_a_separate_column(int $percentDone): void
+    {
+        $project = Project::factory()->create();
+        $member = $this->memberOf($project);
+        Issue::factory()->for($project)->create(['percent_done' => $percentDone]);
+
+        $response = $this->actingAs($member)->get(route('issues.index', $project));
+
+        $response->assertOk()->assertSee('% Done');
+        $this->assertMatchesRegularExpression('/<td\b[^>]*>\s*'.$percentDone.'%\s*<\/td>/', $response->getContent());
     }
 
     public function test_status_filter_limits_the_listed_issues(): void

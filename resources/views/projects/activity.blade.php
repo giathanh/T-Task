@@ -16,7 +16,7 @@
     @endphp
 
     <div class="py-8 sm:py-12">
-        <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col gap-8 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex flex-col gap-2">
                     <p class="text-xs font-semibold uppercase tracking-widest text-primary">Nhịp làm việc của dự án</p>

@@ -10,7 +10,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="mx-auto flex max-w-5xl flex-col gap-6 sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col gap-6 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between">
                 <h3 class="font-medium text-on-surface">Các trang ({{ $pages->total() }})</h3>
                 <a
