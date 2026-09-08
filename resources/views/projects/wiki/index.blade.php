@@ -10,9 +10,9 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="mx-auto flex max-w-5xl flex-col gap-6 sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col gap-6 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between">
-                <h3 class="font-medium text-on-surface">Các trang ({{ $pages->count() }})</h3>
+                <h3 class="font-medium text-on-surface">Các trang ({{ $pages->total() }})</h3>
                 <a
                     href="{{ route('projects.wiki.create', $project) }}"
                     class="rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-on-primary"
@@ -54,6 +54,8 @@
                     </ul>
                 </section>
             @endif
+
+            {{ $pages->links() }}
         </div>
     </div>
 </x-app-layout>

@@ -46,8 +46,8 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto flex max-w-6xl flex-col gap-6 sm:px-6 lg:px-8">
+    <div class="py-6">
+        <div class="flex w-full flex-col gap-6 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <a
                     href="{{ route('issues.index', $project['id']) }}"
@@ -66,171 +66,202 @@
                 @endcan
             </div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {{-- Main column --}}
-                <div class="flex flex-col gap-6 lg:col-span-2">
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-sm text-on-surface-variant">#{{ $issue->id }}</span>
-                            <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
-                                {{ $typeLabels[$issue->type->value] }}
-                            </span>
-                            <span class="{{ $badgeBase }} {{ $statusBadges[$issue->status->value] }}">
-                                {{ $statusLabels[$issue->status->value] }}
-                            </span>
-                            @if ($issue->is_private)
-                                <span class="{{ $badgeBase }} bg-surface-container-high text-on-surface-variant">Riêng tư</span>
-                            @endif
-                        </div>
+            <article aria-labelledby="issue-title" class="min-w-0 divide-y divide-outline-variant rounded-lg border border-outline-variant bg-surface-container-lowest px-4 sm:px-6">
+                <header class="py-5">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm text-on-surface-variant">#{{ $issue->id }}</span>
+                        <span class="{{ $badgeBase }} {{ $typeBadges[$issue->type->value] }}">
+                            {{ $typeLabels[$issue->type->value] }}
+                        </span>
+                        <span class="{{ $badgeBase }} {{ $statusBadges[$issue->status->value] }}">
+                            {{ $statusLabels[$issue->status->value] }}
+                        </span>
+                        @if ($issue->is_private)
+                            <span class="{{ $badgeBase }} bg-surface-container-high text-on-surface-variant">Riêng tư</span>
+                        @endif
+                    </div>
 
-                        <h1 class="mt-3 text-2xl font-semibold text-on-surface">{{ $issue->title }}</h1>
+                    <h1 id="issue-title" class="mt-3 break-words text-2xl font-semibold text-on-surface">{{ $issue->title }}</h1>
 
-                        <p class="mt-2 text-xs text-on-surface-variant">
-                            Tạo {{ $issue->created_at->diffForHumans() }}
-                            @if ($issue->reporter)
-                                bởi {{ $issue->reporter->name }}
-                            @endif
-                            · Cập nhật {{ $issue->updated_at->diffForHumans() }}
+                    <p class="mt-2 text-xs text-on-surface-variant">
+                        Tạo {{ $issue->created_at->diffForHumans() }}
+                        @if ($issue->reporter)
+                            bởi {{ $issue->reporter->name }}
+                        @endif
+                        · Cập nhật {{ $issue->updated_at->diffForHumans() }}
+                    </p>
+
+                    @if ($issue->parent)
+                        <p class="mt-3 text-sm text-on-surface-variant">
+                            Task cha:
+                            <a href="{{ route('issues.show', [$project['id'], $issue->parent->id]) }}" class="font-medium text-primary hover:underline">
+                                #{{ $issue->parent->id }} {{ $issue->parent->title }}
+                            </a>
                         </p>
+                    @endif
+                </header>
 
-                        @if ($issue->parent)
-                            <p class="mt-3 text-sm text-on-surface-variant">
-                                Task cha:
-                                <a href="{{ route('issues.show', [$project['id'], $issue->parent->id]) }}" class="font-medium text-primary hover:underline">
-                                    #{{ $issue->parent->id }} {{ $issue->parent->title }}
-                                </a>
-                            </p>
-                        @endif
-                    </section>
-
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <h3 class="mb-3 font-medium text-on-surface">Mô tả</h3>
-                        @if (filled($issue->description))
-                            <p class="whitespace-pre-wrap text-sm text-on-surface">{{ $issue->description }}</p>
-                        @else
-                            <p class="text-sm text-on-surface-variant">Issue này chưa có mô tả.</p>
-                        @endif
-                    </section>
-
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <h3 class="mb-3 font-medium text-on-surface">
-                            Tệp đính kèm
-                            <span class="text-sm font-normal text-on-surface-variant">({{ $issue->attachments->count() }})</span>
-                        </h3>
-                        @if ($issue->attachments->isEmpty())
-                            <p class="text-sm text-on-surface-variant">Không có tệp đính kèm.</p>
-                        @else
-                            <ul class="flex flex-col divide-y divide-outline-variant">
-                                @foreach ($issue->attachments as $attachment)
-                                    <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                                        <span class="font-medium text-on-surface">{{ $attachment->original_name }}</span>
-                                        <span class="text-xs text-on-surface-variant">
-                                            {{ $formatBytes($attachment->size) }}
-                                            @if ($attachment->uploader)
-                                                · {{ $attachment->uploader->name }}
-                                            @endif
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </section>
-
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <h3 class="mb-3 font-medium text-on-surface">
-                            Task con
-                            <span class="text-sm font-normal text-on-surface-variant">({{ $issue->children->count() }})</span>
-                        </h3>
-                        @if ($issue->children->isEmpty())
-                            <p class="text-sm text-on-surface-variant">Không có task con.</p>
-                        @else
-                            <ul class="flex flex-col divide-y divide-outline-variant">
-                                @foreach ($issue->children as $child)
-                                    <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-                                        <a href="{{ route('issues.show', [$project['id'], $child->id]) }}" class="font-medium text-primary hover:underline">
-                                            #{{ $child->id }} {{ $child->title }}
-                                        </a>
-                                        <span class="flex items-center gap-2">
-                                            <span class="{{ $badgeBase }} {{ $statusBadges[$child->status->value] }}">
-                                                {{ $statusLabels[$child->status->value] }}
-                                            </span>
-                                            @if ($child->percent_done > 0)
-                                                <span class="text-xs text-on-surface-variant">{{ $child->percent_done }}%</span>
-                                            @endif
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </section>
-                </div>
-
-                {{-- Sidebar column --}}
-                <div class="flex flex-col gap-4">
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <dl class="flex flex-col gap-4 text-sm">
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Người thực hiện</dt>
-                                <dd class="font-medium text-on-surface">{{ $issue->assignee?->name ?? 'Chưa gán' }}</dd>
-                            </div>
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Ưu tiên</dt>
-                                <dd class="text-xs {{ $priorityBadges[$issue->priority->value] }}">{{ $priorityLabels[$issue->priority->value] }}</dd>
-                            </div>
-                            @if ($issue->type->value === 'bug' && $issue->severity)
-                                <div class="flex items-center justify-between gap-3">
-                                    <dt class="text-on-surface-variant">Mức độ nghiêm trọng</dt>
-                                    <dd class="font-medium text-on-surface">{{ $severityLabels[$issue->severity->value] }}</dd>
-                                </div>
-                            @endif
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Ngày bắt đầu</dt>
-                                <dd class="text-on-surface">{{ $issue->start_date?->format('d/m/Y') ?? '—' }}</dd>
-                            </div>
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Hạn hoàn thành</dt>
-                                <dd class="text-on-surface">{{ $issue->due_date?->format('d/m/Y') ?? '—' }}</dd>
-                            </div>
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Ước lượng</dt>
-                                <dd class="text-on-surface">{{ $issue->estimated_hours ? $issue->estimated_hours.' giờ' : '—' }}</dd>
-                            </div>
-                            <div class="flex items-center justify-between gap-3">
-                                <dt class="text-on-surface-variant">Danh mục</dt>
-                                <dd class="text-on-surface">{{ $issue->category ?? '—' }}</dd>
-                            </div>
-                        </dl>
-
-                        <div class="mt-4">
-                            <div class="flex items-center justify-between text-xs text-on-surface-variant">
-                                <span>% Hoàn thành</span>
-                                <span class="font-semibold text-on-surface">{{ $issue->percent_done }}%</span>
-                            </div>
-                            <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-container-high">
-                                <div class="h-full rounded-full bg-primary" style="width: {{ $issue->percent_done }}%"></div>
-                            </div>
+                <section class="py-5">
+                    <dl class="grid grid-cols-1 gap-x-12 gap-y-3 text-sm md:grid-cols-2">
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Người thực hiện</dt>
+                            <dd class="font-medium text-on-surface">{{ $issue->assignee?->name ?? 'Chưa gán' }}</dd>
                         </div>
-                    </section>
-
-                    <section class="rounded-3xl bg-surface-container-lowest p-6 shadow-elevation-1">
-                        <h3 class="mb-3 font-medium text-on-surface">
-                            Người theo dõi
-                            <span class="text-sm font-normal text-on-surface-variant">({{ $issue->watchers->count() }})</span>
-                        </h3>
-                        @if ($issue->watchers->isEmpty())
-                            <p class="text-sm text-on-surface-variant">Chưa có người theo dõi.</p>
-                        @else
-                            <div class="flex flex-wrap gap-2">
-                                @foreach ($issue->watchers as $watcher)
-                                    <span class="rounded-full border border-outline-variant px-3 py-1 text-sm text-on-surface">
-                                        {{ $watcher->name }}
-                                    </span>
-                                @endforeach
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Ưu tiên</dt>
+                            <dd class="text-xs {{ $priorityBadges[$issue->priority->value] }}">{{ $priorityLabels[$issue->priority->value] }}</dd>
+                        </div>
+                        @if ($issue->type->value === 'bug' && $issue->severity)
+                            <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                                <dt class="text-on-surface-variant">Mức độ nghiêm trọng</dt>
+                                <dd class="font-medium text-on-surface">{{ $severityLabels[$issue->severity->value] }}</dd>
                             </div>
                         @endif
-                    </section>
-                </div>
-            </div>
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Ngày bắt đầu</dt>
+                            <dd class="text-on-surface">{{ $issue->start_date?->format('d/m/Y') ?? '—' }}</dd>
+                        </div>
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Hạn hoàn thành</dt>
+                            <dd class="text-on-surface">{{ $issue->due_date?->format('d/m/Y') ?? '—' }}</dd>
+                        </div>
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Ước lượng</dt>
+                            <dd class="text-on-surface">{{ $issue->estimated_hours ? $issue->estimated_hours.' giờ' : '—' }}</dd>
+                        </div>
+                        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-start gap-3">
+                            <dt class="text-on-surface-variant">Danh mục</dt>
+                            <dd class="text-on-surface">{{ $issue->category ?? '—' }}</dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-4 md:w-1/2 md:pr-6">
+                        <div class="flex items-center justify-between text-xs text-on-surface-variant">
+                            <span>% Hoàn thành</span>
+                            <span class="font-semibold text-on-surface">{{ $issue->percent_done }}%</span>
+                        </div>
+                        <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-container-high">
+                            <div class="h-full rounded-full bg-primary" style="width: {{ $issue->percent_done }}%"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="py-5">
+                    <h3 class="mb-3 font-medium text-on-surface">Mô tả</h3>
+                    @if (filled($issue->description))
+                        <p class="whitespace-pre-wrap break-words text-sm text-on-surface">{{ $issue->description }}</p>
+                    @else
+                        <p class="text-sm text-on-surface-variant">Issue này chưa có mô tả.</p>
+                    @endif
+                </section>
+
+                <section class="py-5">
+                    <h3 class="mb-3 font-medium text-on-surface">
+                        Tệp đính kèm
+                        <span class="text-sm font-normal text-on-surface-variant">({{ $issue->attachments->count() }})</span>
+                    </h3>
+                    @if ($issue->attachments->isEmpty())
+                        <p class="text-sm text-on-surface-variant">Không có tệp đính kèm.</p>
+                    @else
+                        <ul class="flex flex-col divide-y divide-outline-variant">
+                            @foreach ($issue->attachments as $attachment)
+                                <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                                    <span class="font-medium text-on-surface">{{ $attachment->original_name }}</span>
+                                    <span class="text-xs text-on-surface-variant">
+                                        {{ $formatBytes($attachment->size) }}
+                                        @if ($attachment->uploader)
+                                            · {{ $attachment->uploader->name }}
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </section>
+
+                <section class="py-5">
+                    <h3 class="mb-3 font-medium text-on-surface">
+                        Task con
+                        <span class="text-sm font-normal text-on-surface-variant">({{ $issue->children->count() }})</span>
+                    </h3>
+                    @if ($issue->children->isEmpty())
+                        <p class="text-sm text-on-surface-variant">Không có task con.</p>
+                    @else
+                        <ul class="flex flex-col divide-y divide-outline-variant">
+                            @foreach ($issue->children as $child)
+                                <li class="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+                                    <a href="{{ route('issues.show', [$project['id'], $child->id]) }}" class="font-medium text-primary hover:underline">
+                                        #{{ $child->id }} {{ $child->title }}
+                                    </a>
+                                    <span class="flex items-center gap-2">
+                                        <span class="{{ $badgeBase }} {{ $statusBadges[$child->status->value] }}">
+                                            {{ $statusLabels[$child->status->value] }}
+                                        </span>
+                                        @if ($child->percent_done > 0)
+                                            <span class="text-xs text-on-surface-variant">{{ $child->percent_done }}%</span>
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </section>
+
+                <section class="py-5">
+                    <h3 class="mb-3 font-medium text-on-surface">
+                        Người theo dõi
+                        <span class="text-sm font-normal text-on-surface-variant">({{ $issue->watchers->count() }})</span>
+                    </h3>
+                    @if ($issue->watchers->isEmpty())
+                        <p class="text-sm text-on-surface-variant">Chưa có người theo dõi.</p>
+                    @else
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($issue->watchers as $watcher)
+                                <span class="rounded-full border border-outline-variant px-3 py-1 text-sm text-on-surface">
+                                    {{ $watcher->name }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+                </section>
+                <section id="notes" aria-labelledby="notes-heading" class="scroll-mt-6 py-5">
+                    <h3 id="notes-heading" class="mb-4 font-medium text-on-surface">
+                        Ghi chú <span class="text-sm font-normal text-on-surface-variant">({{ $notes->total() }})</span>
+                    </h3>
+
+                    @if (session('status') === 'issue-note-created')
+                        <p role="status" class="mb-4 text-sm text-primary">Đã thêm ghi chú.</p>
+                    @endif
+
+                    @can('update', $issue)
+                        <form method="POST" action="{{ route('issues.notes.store', [$project['id'], $issue->id]) }}" class="mb-5 flex flex-col gap-3">
+                            @csrf
+                            <x-md3-textarea name="body" label="Thêm ghi chú" :rows="4" required maxlength="10000" />
+                            <div class="flex justify-end">
+                                <x-primary-button>Thêm ghi chú</x-primary-button>
+                            </div>
+                        </form>
+                    @endcan
+
+                    <div class="divide-y divide-outline-variant">
+                        @forelse ($notes as $note)
+                            <article id="note-{{ $note->id }}" class="py-4">
+                                <div class="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-on-surface-variant">
+                                    <span class="font-medium text-on-surface">{{ $note->author?->name ?? 'Người dùng đã xóa' }}</span>
+                                    <time datetime="{{ $note->created_at->toIso8601String() }}">{{ $note->created_at->format('d/m/Y H:i') }}</time>
+                                </div>
+                                <p class="whitespace-pre-wrap break-words text-sm text-on-surface">{{ $note->body }}</p>
+                            </article>
+                        @empty
+                            <p class="text-sm text-on-surface-variant">Issue này chưa có ghi chú.</p>
+                        @endforelse
+                    </div>
+
+                    @if ($notes->hasPages())
+                        <div class="mt-4">{{ $notes->links() }}</div>
+                    @endif
+                </section>
+            </article>
         </div>
     </div>
 </x-app-layout>
